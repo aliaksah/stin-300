@@ -1,0 +1,528 @@
+---
+title: "Creating functions. The matrix data structure. Data frame"
+output: html_document
+date: "2024-01-02"
+---
+
+# **Today's learning goals**
+
+The hyperlinks point to reference literature.
+
+-   Understand the concept of *functions* ([HOPR](https://rstudio-education.github.io/hopr/basics.html#write-functions), [R4DS](https://r4ds.had.co.nz/functions.html), [ADVR](http://adv-r.had.co.nz/Functions.html)) and modular code
+
+-   Learn how to build simple functions
+
+-   Understand the basic idea of *local scope* and arguments in R functions
+
+-   The [matrix](https://rstudio-education.github.io/hopr/r-objects.html#matrices) data structure
+
+-   The [data.frame](https://rstudio-education.github.io/hopr/r-objects.html#data-frames) data structure
+
+# **Recap**
+
+Today we'll have a bit of an extended recap.
+
+## **Lists**
+
+We introduced the *list* data structure.
+
+-   What is the difference between a vector and a list?
+
+## **The `for` loop**
+
+We typically use a `for` loop when we
+
+-   Want to repeat some code many times
+
+-   Know exactly how many times
+
+A typical example is to loop through a list, and do something for each element in the list. But loops are also used in many other situations.
+
+# **Building functions**
+
+In the long run, it is impossible to only make use of functions made by others. If we knew all functions in all R packages(!), we could probably come a very long way, but quite often we end up building our own function instead of looking for it elsewhere. It may simply be simply less work. And from time to time we need a very specific function that probably no one has made before us.
+
+## **The syntax**
+
+The syntax for building a new function in R looks like this:
+
+```         
+<name> <- function(<arguments>){
+  <code>
+  <more code>
+  return(<object>)
+}
+```
+
+Note first the *keywords*, `function` and `return`. These are names you **cannot** use as ordinary names (try it!); they are reserved for this special purpose.
+
+After the `function` statement comes the parentheses, inside which you specify all *arguments*, or *inputs*. If there are several arguments, they are separated by comma. You may have zero, one or many arguments. All ***arguments*** have a ***name*** (`...` is special, but we need not worry about that for now). This is their *local name*, i.e. if we want to use them inside our function (and we always do) we refer to them by the name specified here.
+
+After the parentheses follows a set of braces `{ }`. This marks the start an end of the function code. Between these braces you put the code of the function.
+
+This code is our choice. Here we compute whatever we want our function to compute.
+
+The code ends with the `return()` statement. It specifies the output from the function. The object that we `return` is the output. Thus, a function can only have *one object as output*, but there is no restriction on how big this object is. The function terminates at the `return()` statement, and this must always be the very last code in the function. Any code after this will simply not be executed. Note that if no  `return()` statement is present in the dunction, it will return the last value computed before we braces are closed.
+
+## **Example - distance function**
+
+Many data analyses require us to compute some measure of dissimilarity between two vectors of observations. Let us make a simple function for computing *Manhattan distances* between two `numeric` vectors. Functions for doing this already exist in R, but we make our own here now for illustration.
+
+What is a [Manhattan](http://4.bp.blogspot.com/-cxxN513xrmI/TrZV6AL2YUI/AAAAAAAAARA/pF5Nhx8sXcs/s1600/usm_map_tokens.jpg) distance? You can Google it, but it is quite simple actually. Let us assume we have two `numeric` vectors `x`and `y` and they have identical length `N`. Then the formula is:
+
+$$
+d(x,y) = 1/N\sum_{i=1}^N|x_i-y_i|
+$$
+
+...or in words; the mean of the absolute elementwise differences between the components of the two vectors.
+
+First, we need to think about the function input and output. We start out simple:
+
+-   The function should take two arguments, two vectors with `numeric` values.
+
+-   The function should give as output a single `numeric` value, the computed distance.
+
+The name of the function we choose to be `mDist()`.
+
+Here is the code for the first version:
+
+```{r}
+mDist <- function(x, y){
+  distance <- mean(abs(x - y))
+  return(distance)
+}
+#run by
+mDist(x = 1:3, y = 2:4)
+mDist(y = 1:3, x = 2:4)
+#or
+mDist(1:3, 2:4)
+#but here the order matters
+```
+
+But, the function is ready to be used. Let us try it: In the Console window type `mDist(1:3, 2:4)` and hit return, you should get some output.
+
+## **Local scope**
+
+When we `defined` our function and then used it, the objects created in its code were never visible in our Global Environment. Inside the function we created objects named `x`, `y` and `distance`. None of them exist in the Global Environment. Where are they?
+
+The point is that objects created inside a function has what we call ***local scope***. This means they are created once the function is *used*, they exist as long as the function is doing its job, and then erased again as soon as the function is done. They are *local* objects.
+
+If you have done some programming before, you will recognize this idea. Functions (or methods, procedures) are always like this. There are some good reasons for it. Think again of a function as a *machine*. The user of the machine does not need to see all the details inside it in order to use it.
+
+Think of all the functions in all the packages we load! If all objects created inside these were laying on our Global Environment desk it would be very filled up! And besides, it is every good reason to expect that some object-name used in one function is identical to a name used somewhere else. In order to make R code you would need a list of all object names created in all functions in all packages, and avoid these!
+
+The point is that a function has a *contract with its users by specifying its arguments and its output*. **Nothing more**. You, as a user, need to know what to put into it, and what to get out, not how things are solved inside.
+
+When we execute our function, we can 'freeze' its execution by putting a *browser point* inside it. We either click in the left margin in RStudio, or as shown here, use the function `browser()`:
+
+```{r}
+mDist1 <- function(x, y){
+  distance <- mean(abs(x - y))
+  browser()
+  return(distance)
+}
+mDist1(1:3, 2:4)
+```
+
+Load the function again, and use it by `mDist1(1:3, 2:4)` in the Console. The execution will now halt at the browser point. We can now inspect the local objects by typing their name and return. If you want the execution to continue, type `c` and return in the Console.
+
+We typically use browser points to **inspect** our functions when they do something wrong, to see if we can understand the reason for the error, and correct this.
+
+**Remember to delete** all browser statements once you are done inspecting the function.
+
+## **Inputs and outputs are copied**
+
+When we use a function, the arguments we give it are *copied* into the function. Let us make a small script where we use our `mDist()` function:
+
+```{r}
+vec1 <- c(1, 3, 2, 1, 3, 3, 2)
+vec2 <- c(3, 3, 2, 1, 2, 3, 1)
+dd <- mDist(x = vec1, y = vec2)
+```
+
+When we use our function in the last line above, it gets a **(deep)** *copy* of the content of `vec1` and `vec2`. These copies are named `x` and `y` inside the function. It is a common misunderstanding that an object we send as input to a function must have the same name as the argument. These are two completely different objects! If  `x` and `y`  were changed in the function, they won't change in the values of `vec1` and `vec2`!
+
+The same applies to the output. Inside the function we say that the object `distance` is returned. Then, a copy of this object is assigned to the global object `dd`.
+
+It is possible to make use of global objects inside a function using \<\<- operator. **We should avoid this**. But here is the example
+
+```{r}
+mDist2 <- function(x, y){
+  distance <<- mean(abs(x - y))
+  return(distance)
+}
+mDist2(1:3, 2:4)
+print(distance)
+```
+
+Also, if our function *depends* on there being a global object with some specific name it is a very bad design (with some exceptions). The function can only work if such an object exists! Example:
+
+```{r}
+x <- 1:3
+y <- 2:4
+mDist3 <- function(){
+  distance <- mean(abs(x - y))
+  return(distance)
+}
+mDist3()
+
+```
+
+It is a general rule that *all objects the function need should come as arguments*. In this way the function can do its job irrespective of the code in which it is used.
+
+## **Essential arguments and options**
+
+Most functions take one or several arguments, the input we give them. They do something based on this input, and return to us some output. The function `mean()` we have already used:
+
+```{r}
+v <- c(1,4,2,5,6,3)  # numeric vector
+y <- mean(v)         # use v as argument, store output in y
+```
+
+Looking at `?mean` we see that its usage is also described as
+
+```         
+mean(x, trim = 0, na.rm = FALSE, ...)
+```
+
+We can obviously also send further arguments to this function, one named `trim` and one named `na.rm` (and one named `...`, which is special). If we look down the Help file, the arguments are explained. It says that `trim` must be a value from 0.0 to 0.5, and `na.rm` must be either `TRUE` or `FALSE`. Notice that they both have already been given a *default* value, with `trim = 0` and `na.rm = FALSE`.
+
+The first argument to `mean()` is named `x` and this is a *required argument*. This is the vector we are computing the average from. Without this information, the function cannot do its job. A required argument **never** has a default value; the user *must* supply something.
+
+The other arguments to `mean()` are *optional arguments* or *options*. They already have a **default** value, and we do not have to specify them. But, we may change their value to alter the behavior of the function.
+
+R functions often have many arguments, and the required arguments should be listed first, followed by the options. When we use the function, we may provide data for some of the options, and it is a good habit to *name* the options when we use them, like this:
+
+```         
+y <- mean(v, na.rm = TRUE)
+```
+
+if you do not name the options, you need to specify them in exactly the order listed in the Help-file.
+
+To summarize:
+
+-   Functions have required arguments, possibly followed by some options.
+
+-   The function will not work without input to the required arguments.
+
+-   We may change the function's behavior by giving values to optional arguments.
+
+-   Name options when using them.
+
+## **Adding options to the function**
+
+Our `mDist()` function should probably have some option for handling missing data. Here we illustrate why:
+
+```{r}
+vec1 <- c(1, 3, 2, 1, NA, 3, 2)
+vec2 <- c(3, 3, 2, 1, 2, 3, 1)
+mDist(vec1, vec2)
+```
+
+The distance becomes `NA` since one of the inputs has one `NA`, and inside our function we use `mean()`, where any `NA` makes the result `NA`. However, we saw previously that `mean()` has an option for dealing with this, the `na.rm` option. Let us add the same option to our function as well:
+
+```{r}
+mDist <- function(x, y, na.rm = FALSE){
+  distance <- mean(abs(x - y), na.rm = na.rm)
+  return(distance)
+}
+vec1 <- c(1, 3, 2, 1, NA, 3, 2)
+vec2 <- c(3, 3, 2, 1, 2, 3, 1)
+mDist(vec1, vec2, na.rm = TRUE)
+```
+
+Notice:
+
+-   We use the exact same name for the option as in `mean()`. We are free to use any name we like, but it is a good idea to use the same name since this option has the same role as `na.rm` in `mean()`.
+
+-   We give this argument a default value, making it an option. The choice of default value is up to us, but it is again a good idea to extend the same philosophy as in `mean()` (and many other R functions).
+
+-   Inside the function we copy the value supplied for `na.rm` in `mDist()` into the `mean()` function.
+
+How about the `...` that was mentioned in the Help file for `mean()`? This is **also** an **argument**! It symbolizes arguments that the current function does not use, but that we still may supply to be passed on to other functions used by the current function. Here is an example:
+
+Our function uses `mean()`. In `mean()` there is an option named `na.rm`. Our function might not have an `na.rm` argument, but if we like, we can make it available to the user using `...`. We extend the code like this:
+
+```{r}
+mDist <- function(x, y, ...){
+  N <- length(x)
+  distance <- mean(abs(x - y), ...)
+  return(distance)
+}
+
+vec1 <- c(1, 3, 2, 1, NA, 3, 2)
+vec2 <- c(3, 3, 2, 1, 2, 3, 1)
+mDist(vec1, vec2, na.rm = T)
+```
+
+Notice we just pass on the `...` to `mean()` without knowing what it is. It is now up to the `mean()` machine to make use of this, or not.
+
+# **The matrix and the data.frame**
+
+## **What is a matrix? What is the difference with a data.frame?**
+
+A matrix in R is a vector arranged in 2 dimensions (**vector of vectors**), with rows and columns. Just like a vector, a matrix can only contain data of one atomic type. You may be familiar with matrices from mathematics/statistics. Such matrices always contain numbers, and in R this is also mostly the case. This is not a restriction, we may also have matrices of texts, `factor`, `logicals` etc., but it is fair to say that matrices are typically mathematical objects.
+
+A matrix may also looks like a table, i.e. a `data.frame`, which is formally a **list of vectors**. They both have rows and columns. But, in tables the *columns* are the entities, and different columns may have different data types. In a matrix all cells must contain the same data type, and the basic entity is a single cell. Columns are not more important than rows in a matrix. Also, a more detailed recap of `data.frame` with connections to more modern types of tables will be done in one of the upcoming lectures.
+
+![Figure 6. Visualizing a matrix. The left figure is a matrix, while the right is a table. Note that all cells in the matrix have the same color (same type). It is actually a vector, but arranged into rows and columns instead of one linear series.](https://arken.nmbu.no/~jonvi/stin300/fig/matrix.PNG)
+
+Examples of matrices and data.frames
+
+```{r}
+#Create a matrix 
+M <- matrix(1:9, nrow = 3, ncol = 3)
+print(M)
+# Create a data frame with weights and heights for male and female
+df <- data.frame(
+  gender = c("male","male","male","male","male","female", "female","female","female","female"), # see help(rep), i.e. rep repeats "male" 5 times and returns a vector, 
+  height = c(175, 180, 165, 172, 168, 165, 170, 162, 175, 168),
+  weight = c(70, 80, 95, 75, 100, 55, 60, 120, 65, 58)
+)
+print(df)
+```
+
+## **Manipulating matrices**
+
+We index a matrix using indices of rows and then columns
+
+```{r}
+print(M[1,2])
+```
+
+i.e. using two indices separated with comma inside the brackets. We can also index entire rows and columns, like this
+
+```{r}
+a <- M[1,]   # copy row 1 into a
+print(a)
+b <- M[,2]   # copy column 2 into b
+print(b)
+c <- M[4]    # What? We can use only one index?
+print(c)
+```
+
+The last assignment also works! It is the same as `M[1,2]` in this case. Remember, a matrix is just a vector arranged into rows and columns. Using the good old vector indexing works, and we count from the upper left corner and down the columns, thus element number 4 is the first element in column 2 (since the first column has 3 elements).
+
+We can put names on rows and columns:
+
+```{r}
+colnames(M) <- c("Col1", "Col2","Col3")
+```
+
+...but we cannot use the `$` to refer to a column like we did for lists!
+
+We can *bind* matrices using functions `rbind()` and `cbind()` to bind on rows and columns respectively.
+
+## **Mathematical operations**
+
+We can think of a matrix of numeric or integers as a mathematical object, and there are a number of mathematical operations we can perform on matrices. We will not dig into this, but mention some of them. The *transpose* function `t()`, which means flipping the matrix over such that columns become rows and vice versa:
+
+```{r}
+print(t(M))
+```
+
+Matrix multiplication (inner product) is the operator `%*%`:
+
+```{r}
+M.sq <- t(M) %*% M
+print(M.sq)
+```
+
+You can also multiply a vector and a matrix with this product as long as the dimensions match.
+
+You can compute singular values and eigenvalues with `svd()` and `eigen()`, respectively, and principal components with `prcomp()`.
+
+## **Manipulating tables (data.frame)**
+
+Recall that a data.frame is a list of vectors, where
+
+a\. different columns can have different types
+
+b\. all columns must have the same length
+
+[![](https://rstudio-education.github.io/hopr/images/hopr_0302.png)](https://rstudio-education.github.io/hopr/r-objects.html#data-frames)
+
+Recall the definition we used in the example above
+
+```{r}
+# Create a data frame with weights and heights for male and female
+df <- data.frame(
+  gender = c("male","male","male","male","male","female", "female","female","female","female"), 
+  height = c(175, 180, 165, 172, 168, 165, 170, 162, 175, 168),
+  weight = c(70, 80, 95, 75, 100, 55, 60, 120, 65, 58)
+)
+print(df)
+```
+
+We can now add a column to an excising data.frame similarly to how we would do that for a list
+
+```{r}
+df$bmi <- df$weight/((df$height/100)^2)
+
+#useful function to glimplse into the data frame
+head(df)
+
+```
+
+We get the columns (which are vectors) by the same rules we got elements of simple lists
+
+```{r}
+#like so
+df$weight
+df$weight[1:2]
+#or so
+df[["weight"]]
+df[["weight"]][1:2]
+#or so
+df[[3]]
+df[[3]][1:2]
+```
+
+But, we can also index the table similarly to the matrix, i.e. using two indices separated with comma inside the brackets. We can also index entire rows and columns, like this
+
+```{r}
+a <- df[1,]   # copy row 1 into a
+print(a)
+b <- df[,2:3]   # copy column 2 into b
+print(b)
+```
+
+# Exercises
+
+## **Exercise - guess what the function does?**
+
+Consider the code below:
+
+```{r}
+x <- c(2,1,4,3,5)
+zort <- function(x){
+  x <- sort(x)
+  return(x)
+}
+
+y <- zort(x)
+print(x)
+```
+
+Discuss before running the code: What will be printed?
+
+## **Exercise - define your own function**
+
+Define a new function in R that counts the number of differing values in a pair of vectors of the same length.
+
+Possible solution:
+
+```{r}
+count_diff_values <- function(vector1, vector2) {
+  
+  diff <- 0
+  for(i in 1:length(vector1))
+  {
+    if(vector1[i] != vector2[i])
+    {  
+      diff <- diff + 1
+    }
+  }
+  return(diff)
+}
+
+v1 <- c(1, 2, 3, 4, 4)
+v2 <- c(3, 4, 5, 4, 7)
+
+count_diff_values(v1,v2)
+```
+
+think which options you can add and implement them.
+
+## **Exercise - language distances**
+
+Load the table `languages` from the web by
+
+```{r}
+load(url("http://arken.nmbu.no/~larssn/teach/stin300/languages.RData"))
+```
+
+Each column is a European language and the rows contain the first letter in the word for the integers 1,2,...,10 in each language.
+
+Make a function `lDist()` that computes the 'distance' between two languages based on vectors as in the columns of this table. The distance is found by comparing the language-vectors element by element, and summing the differences, i.e. a distance of 0 means the two language-vectors are identical, and maximum distance is 10.0 (since there are 10 letters in all vectors). However, some differences should account for less then a full difference (which is 1.0).
+
+Example: we see that the words for 4 have different first letters, but some of them are more different than others. In Norwegian it is "f" (for "fire"), in German it is "v" (for "vier") and in French it is "q" (for "quatre"). Clearly the Norwegian and the German are more similar (German "v" is even pronounced "f"), and matching "f" against "v" should add less to the distance than matching "f" against "q".
+
+As a start, we decide that matching `"f"` against `"v"` or `"d"` against `"t"` should add only 0.5 to the distance.
+
+Use you function to compute the distances between some pairs of languages from the `languages` table, and verify manually that the distances are correct.
+
+```{r}
+lDist <- function(l1, l2){
+  d <- sum(l1 != l2)
+  is.similar <- (l1 == "d" & l2 == "t") | (l1 == "t" & l2 == "d") | (l1 == "f" & l2 == "v") | (l1 == "v" & l2 == "f")
+  d <- d - sum(is.similar) * 0.5
+  return(d)
+}
+load(url("http://arken.nmbu.no/~larssn/teach/stin300/languages.RData"))
+print(lDist(languages$Albanian, languages$Norwegian))
+```
+
+## **Exercise - distance matrix**
+
+Extend the languages exercise from above. Make a script where you compute the distances between all pairs of languages, and store this in a matrix with one row and column for each language. Put proper column- and row-names on this matrix.
+
+To compute the distance between all pairs, use a loop inside a loop! First loop over all languages, think of it as rows in the matrix. Then for each row, loop over all languages again, think of this as the columns of the matrix. Compute the distance between the row-language and the column-language.
+
+Suggested solution
+
+```{r}
+nc <- ncol(languages)
+D <- matrix(0, nrow = nc, ncol = nc)
+colnames(D) <- colnames(languages)
+rownames(D) <- colnames(languages)
+for(i in 1:nc){
+  for(j in 1:nc){
+    D[i,j] <- lDist(languages[,i], languages[,j])
+  }
+}
+```
+
+Once you have a distance matrix, you can visualize how the languages are 'related' like this:
+
+```{r}
+# assume the distance matrix is called D
+tree <- hclust(as.dist(D))
+par(mar = c(3,1,1,10))
+plot(as.dendrogram(tree), horiz=T)
+```
+
+## **Exercise - distance matrix**
+
+In our data.frame df defined in the lecture add a column Age with values 24,30,55,19,74,45,97,17,22,77. Then use for loops and if else statements to define a column **`above_mean_age`** following compute a column of whether individual has the above average (**"Yes"**) or not (**"No"**) in our data.frame
+
+Suggested solution
+
+```{r}
+#Add the column
+df$Age <- c(24,30,55,19,74,45,97,17,22,77)
+# Calculate the average age
+avg_age <- mean(df$Age)
+print(avg_age)
+
+# Create an empty column to store age groups
+df$above_mean_age <- ""
+head(data)
+
+# Loop through each row of the data
+for (i in 1:nrow(df)) {
+  # Check if the age is above or below average
+  if (df$Age[i] > avg_age) {
+    df$above_mean_age[i] <- "Yes"
+  } else {
+    df$above_mean_age[i] <- "No"
+  }
+}
+
+
+# Print the updated data
+head(df)
+
+```
+
+Can you think how to do the same without loops?

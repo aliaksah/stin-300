@@ -1,0 +1,238 @@
+---
+title: "Applying a function to all items of a list. mclapply, sapply, lapply"
+output: html_document
+date: "2024-01-03"
+---
+
+# **Learning goals**
+
+Become familiar with the functions `apply()`, `lapply()` `mclapply()`, and `sapply()`, which spare you the effort of writing `for` loops in some common situations. They are often used with anonymous functions, which is less scary than it sounds.
+
+*Optional/nerd alert:*
+
+There do exist even more \*apply functions, but they can be confusing to use: `tapply()`, `mapply()`, `rapply()`.
+
+This is a fairly advanced topic: every data frame is rectangular in the same way, while every list is complicated in its own way. If you think you have use for these techniques, the relevant chapter of R for Data Science is [iteration](https://r4ds.had.co.nz/iteration.html), including purrr's [shorthand for writing anonymous functions](https://r4ds.had.co.nz/iteration.html#shortcuts) and the two blog posts linked above.
+
+# **Recap**
+
+We repeat some stuff from previous days by doing the following exercise.
+
+-   Data types
+
+-   Data structures
+
+-   Building functions
+
+-   Looping
+
+# **The `apply` family of functions**
+
+Good R code avoids looping.
+
+But still, sometimes we need a loop to
+
+-   Visit all the elements in a data structure
+
+-   and apply some function to each element
+
+The `apply` family of R functions simplify such operations and avoid explicit looping. They differ slightly in name and how they work, but are all ways of doing some kind of looping.
+
+| Function | Description                                                                                                                                           |
+|----------|-------------------------------------------------------------------------------------------------------------------------------------------------------|
+| apply    | Apply function to rows or columns of a matrix (generalizes to multidimensional arrays)                                                                |
+| lapply   | List apply: apply function to each element of a list, returning a list of results                                                                     |
+| mclapply | List apply: apply function to each element of a list in **parallel**, returning a list of results.                                                    |
+| sapply   | Simplifying apply: lapply(), but return vector if all return values are scalars, data frame if all return values are vectors of the same length, etc. |
+| tapply   | Horribly complicated, use group_by() and summarise() instead                                                                                          |
+| rapply   | Recursive apply (horribly complicated)                                                                                                                |
+| mapply   | Multiple apply (lapply with multiple arguments; horribly complicated)                                                                                 |
+
+## **The `apply()` function**
+
+Let us look first at the one named only `apply()`. This one takes 3 arguments (plus `...`). The first is typically a matrix. This function will apply some function to either its rows or columns, and this is determined by the second argument. A 1 means rows and 2 means columns. The third argument is the name of the function to apply. Let us see:
+
+```{r}
+M <- matrix(1:20, nrow=5)   # creates a small matrix
+print(M)
+mean.cols <- apply(M, 2, mean)  # applies mean() to the columns of M
+print(mean.cols)
+```
+
+apply(M, 2, mean) line corresponds to the code
+
+```{r}
+mean.cols <- numeric(ncol(M))   # creates numeric vector of proper length
+for(j in 1:ncol(M)){
+  mean.cols[j] <- mean(M[,j])
+}
+print(mean.cols)
+```
+
+Whether you should use the first or the second variant depends on who you ask. The second is more similar to other programming languages, and easier to understand for someone new to R. The first variant is slightly more elegant, and how R-programmers do it.
+
+## **`lapply()` and `sapply()`**
+
+The `lapply()` function takes as first argument a data structure (e.g. a `list`) and the second is the function to apply to each element. It loops over all data structure elements, and return the result as a `list` of the same length as the first input. Let us illustrate it on the counting of words in the unknown English poem:
+
+```{r}
+library(stringr)
+poem <- readLines("https://arken.nmbu.no/~jonvi/stin300/data/poem_unknown.txt")  # reads poem line by line
+print(poem)
+lst <- str_split(poem, pattern = " ")       # split each line into words
+lst2 <- lapply(lst, length)                 # applies length() to each list element
+print(lst2)
+```
+
+Another option is to use `mclapply()` function, which is a parallel (multicore, hence prefix mc) version of `lappy()` function, which follows the same syntax
+
+```{r}
+library(parallel)
+print(poem)
+lst <- str_split(poem, pattern = " ")       # split each line into words
+lst2 <- mclapply(lst, length,mc.cores = 10) # applies length() to each list element on 10 cores
+print(lst2)
+```
+
+The parallel function will only work on linux or mac OS. It is useful when the list to apply the function to is long and when applying the function is time consuming.
+
+Notice from the output that in this case, each list-element in `lst2` contains a single number, i.e. the number of words in each line of the poem. It seems unnecessary to store this in a list. Remember:
+
+-   We use vectors and tables whenever we can
+
+-   We use list when we have to
+
+The function `sapply()` is quite similar to `lapply()` but will try to output a vector or matrix, i.e. *simplify* the output. If the applied function outputs elements of the same type and size from all data structure elements, it is possible to put this into a vector or matrix. However, if this simplification is not possible, then `sapply()` also returns the result as a list. Let us demonstrate:
+
+```{r}
+v <- sapply(lst, length)
+print(v)
+```
+
+## **Anonymous functions**
+
+We talked about how to make our own functions yesterday. The template looks like this:
+
+```         
+<name> <- function(<arguments>){
+  <code>
+  <more code>
+  return(<object>)
+}
+```
+
+It is possible to shorten this. First, the `return()` may be omitted, and then the last assigned object will be returned. Second, the name of the function may also be omitted. Then it becomes what we call an *anonymous function*. Such a function will not be stored for later use. Then why do we make it?
+
+We have seen that when we use one of the apply-functions, we need to specify a function as one of the inputs.
+
+Here is an example, where we (for some reason) want to extract he second word on each line of the unknown English poem from above.
+
+```{r}
+poem <- readLines("https://arken.nmbu.no/~jonvi/stin300/data/poem_unknown.txt")
+lst <- str_split(poem, pattern = " ")
+second.word <- sapply(lst, function(x){x[2]})
+```
+
+Now recall yesterday's exercise on language distances with the suggested solution
+
+```{r}
+lDist <- function(l1, l2){
+  d <- sum(l1 != l2)
+  is.similar <- (l1 == "d" & l2 == "t") | (l1 == "t" & l2 == "d") | (l1 == "f" & l2 == "v") | (l1 == "v" & l2 == "f")
+  d <- d - sum(is.similar) * 0.5
+  return(d)
+}
+load(url("http://arken.nmbu.no/~larssn/teach/stin300/languages.RData"))
+print(lDist(languages$Albanian, languages$Norwegian))
+
+nc <- ncol(languages)
+D <- matrix(0, nrow = nc, ncol = nc)
+colnames(D) <- colnames(languages)
+rownames(D) <- colnames(languages)
+for(i in 1:nc){
+  for(j in 1:nc){
+    D[i,j] <- lDist(languages[,i], languages[,j])
+  }
+}
+```
+
+let us now get rid of the nested loop and generate the distance matrix in a more elegant vectorized form of coding
+
+```{r}
+D.v <- sapply(languages, function(lan1)sapply(languages,function(lan2)lDist(lan1,lan2)))
+head(D.v)
+```
+
+# Exercises
+
+## **Exercise - anonymous functions**
+
+Change the code in the poem example above, to extract the *last word* in each line of the poem (we do not care if the word is the empty text `""` this time, it should still be extracted). Also use anonymous function in the solution.
+
+```{r}
+library(stringr)
+poem <- readLines("https://arken.nmbu.no/~jonvi/stin300/data/poem_unknown.txt")  # reads poem line by line
+print(poem)
+lst2 <- lapply(poem, function(x){
+  lst <- str_split(x, pattern = " ")[[1]]
+  lst[length(lst)]
+  })                 # applies length() to each list element
+lst2
+```
+
+## **Exercise - the central limit theorem**
+
+Do the CLT exercise without loops.
+
+The central limit theorem is one of the fundamental mathematical results in statistics. It tells us why normal distributed observations are 'normal' in this world! Let us illustrate this by simulation in R.
+
+The theorem says that the mean value of independent random variables will tend to be normal distributed, *irrespective* of how the random variables themselves are distributed (well, there are some restrictions).
+
+We illustrate this by sampling uniform data, and show that their mean is approximately normal distributed. Make a script where you first sample 100 random values from the *uniform distribution* between 0 and 1:
+
+```         
+x.uniform <- runif(100)
+```
+
+Make a histogram of them to verify they are indeed uniform between 0 and 1, i.e. all values between 0 and 1 appear equally likely and the bars have similar heights (not identical heights, it is still random). This is clearly not normal distributed values.
+
+Then, with `N.sim <- 100000`, create a numeric vector named `umeans` of length `N.sim` and fill it with 0's. Without loops, repeat `N.sim` times, and for each simulation sample 10000 uniform values like above, compute their mean, store in `umeans`.
+
+Then, make a histogram of `umeans`. Does it look like a normal distribution? Try to increase the value of `N.sim` and rerun. Can you reduce the run-time with `mclapply()`? By how much?
+
+Here are some lines of suggested solution
+
+```{r}
+N.sim <- 100000
+start_time_sapply <- Sys.time()
+umeans <- sapply(1:N.sim, function(i)mean(runif(10000),na.rm = T))
+end_time_sapply <- Sys.time()
+print(end_time_sapply - start_time_sapply)
+
+hist(umeans, breaks = 25, col = "black")
+
+start_time_mclapply <- Sys.time()
+umeans <- unlist(mclapply(1:N.sim, function(i)mean(runif(10000),na.rm = T)))
+end_time_mclapply <- Sys.time()
+print(end_time_mclapply - start_time_mclapply)
+
+hist(umeans, breaks = 25, col = "black")
+
+```
+
+## **Exercise - define your own function**
+
+Define a new function in R that counts the number of differing values in a pair of vectors of the same length. But use either `lapply()`, `sapply()` or `mclapply()` in the solution.
+
+Possible solution:
+
+```{r}
+count_diff_values <- function(vector1, vector2) sum(sapply(1:length(vector1),function(i)vector1[i] != vector2[i])) 
+  
+
+v1 <- c(1, 2, 3, 4, 4)
+v2 <- c(3, 4, 5, 4, 7)
+
+count_diff_values(v1,v2)
+
+```
