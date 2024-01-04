@@ -1,8 +1,15 @@
 ---
 title: "The list data structure. Loops. The if...else statement."
+author: "Lars Snipen, Jon Olav Vik, Aliaksandr Hubin"
 output: html_document
 date: "2024-01-02"
 ---
+
+# [*The list data structure.*]{.underline} 
+
+# [*Loops.*]{.underline} 
+
+# [*The "if...else" statement*]{.underline}
 
 # **Learning goals**
 
@@ -90,13 +97,13 @@ print(mixed_vector)
 
 ## **The `list`**
 
-The list is in many ways like a vector, but the big difference is that a list can store 'anything'. The first element may be a number, the second a text, the third a table, the fourth a new list, and so on. So why don't we always use a list instead of a vector? Because this versatility comes with a cost. A list is more cumbersome to use, we no longer have the fast and elegant *vectorization* of code that is so typical for many R programs. [Cost]{.underline} of adding or accessing an element in a list is higher than that of a vector.
+The list is in many ways **like a vector**, but the **big difference is that a list can store 'anything'**. The first element may be a number, the second a text, the third a table, the fourth a new list, and so on. So why don't we always use a list instead of a vector? Because this versatility comes with a cost. A list is more cumbersome to use, we no longer have the fast and elegant *vectorization* of code that is so typical for many R programs. [**Cost**]{.underline} **of adding or accessing an element in a list is higher than that of a vector.**
 
-In general we can say:
+**In general** we can say:
 
--   We use vectors (or matrices and tables) whenever we *can*.
+-   We use vectors (or matrices and tables) whenever we ***can*****.**
 
--   We use lists when we *have to*.
+-   We use lists when we ***have to*****.**
 
 ## **Creating lists**
 
@@ -212,16 +219,17 @@ Avoiding looping is also only a long term goal. For beginners it is better to fi
 The `for`-loop exists in virtually all programming languages. Here is the R syntax template:
 
 ``` r
-for(loop.object in vector){
-  # code to be executed here
+vector = c("a","b","c")
+for(element in vector){
+  print(element)
 }
 ```
 
 Note the keywords `for` and `in`, the parentheses and curly braces.
 
-The `loop.object` is like any object in R, and you can name it whatever you like (well, you cannot name it `for`, `in`, `function` `return`, etc.). It often has a short name, like `i` , `j` etc. It will take the values listed in `vector`. This can be any vector, either something already created, or you create it here (e.g. by `1:10`). Inside the braces is the loop-code. This can in principle be any code.
+The `element` is like any object in R, and you can name it whatever you like (well, you cannot name it `for`, `in`, `function` `return`, etc.). It often has a short name, like `i` , `j` etc. It will take the values listed in `vector`. This can be any vector, either something already created, or you create it here (e.g. by `1:10`). Inside the braces is the loop-code. This can in principle be any code.
 
-The idea of a `for`-loop is to repeat the code inside the braces as many times as there are elements in `vector`. Thus, `length(vector)` becomes the number of repetitions. Then, for each repetition, the values in `vector` will be copied into `loop.object`, one by one, i.e. the object `loop.object` will have taken each value in `vector` once when the loop is done. Quite frequently, the code inside the loop makes use of these values.
+The idea of a `for`-loop is to repeat the code inside the braces as many times as there are elements in `vector`. Thus, `length(vector)` becomes the number of repetitions. Then, for each repetition, the values in `vector` will be copied into `element`, one by one, i.e. the object `loop.object` will have taken each value in `vector` once when the loop is done. Quite frequently, the code inside the loop makes use of these values.
 
 Here is a very simple example:
 
@@ -235,7 +243,7 @@ Here the loop-object is named `i`. The vector is created on-the-fly as `1:10`.
 
 The `for`-loops are typically used when we *know* in advance how many times we need to repeat the code. Operating on a list is such an example. We have some list and can determine its length. Then we use a `for`-loop to visit every list-element, and do something to this.
 
-Let us look at an example using the `my.list` object from we created above. We want to know if the elements in this list are `character`, i.e. contains a character istance. This is how we could do it:
+Let us look at an example using the `my.list` object from we created above. We want to know if the elements in this list are `character`, i.e. contains a character instance. This is how we could do it:
 
 ```{r}
 N <- length(my.list)           # the length of the list
@@ -267,7 +275,7 @@ for(GAGAGAGAGAGAGAGA in 1:N){
 }
 ```
 
-The vector in the loop header does not have to contain the integers from 1 to some length. Any vector can do (in fact it can be any iterable data structure that has a length) but it depends on what the code inside the loop is doing. Remember:
+The **vector** in the loop header does not have to contain the integers from 1 to some length. Any vector can do (in fact it can be **any iterable data structure** that has a length) but it depends on what the code inside the loop is doing. Remember:
 
 -   The *length* of the vector determines the number of repetitions, regardless of what it contains
 
@@ -373,7 +381,7 @@ If the code in the `if-else` branches simply assigns some value to an object, 
 Here is a simple example:
 
 ```{r}
-library(stringr)                       # need str_length()
+library(stringr)# a package to work with characters. We need str_length()
 for(a in list("This","is","a","test")){
   txt <- ifelse(str_length(a) > 3, "long", "short")
   cat("The word", a, "is", txt, "\n")
@@ -440,7 +448,7 @@ print(end_time_list - start_time_list)
 
 Download the file [poem_unknown.txt](https://arken.nmbu.no/~jonvi/stin300/data/poem_unknown.txt) and put it in your `data` folder. Read the text into R line by line (use `readLines()`).
 
-We want to count the number of words in each line. Anything separated by a space (`" "`) is a word. Use `str_split()` to split all lines into words. This produces a list. Loop through the list, count the number of words, and store this in a vector with one element for each list-element.
+We want to count the number of words in each line. Anything separated by a space (`" "`) is a word. Use `str_split()` function (see `help(str_split)` first) to split all lines into words. This produces a list. Loop through the list, count the number of words, and store this in a vector with one element for each list-element.
 
 Here are some lines of suggested solution:
 

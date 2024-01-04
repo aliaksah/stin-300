@@ -1,8 +1,15 @@
 ---
 title: "Creating functions. The matrix data structure. Data frame"
+author: "Lars Snipen, Jon Olav Vik, Aliaksandr Hubin"
 output: html_document
 date: "2024-01-02"
 ---
+
+# [*Creating functions.*]{.underline} 
+
+# [*The matrix data structure.*]{.underline} 
+
+# [*Data frames*]{.underline}
 
 # **Today's learning goals**
 
