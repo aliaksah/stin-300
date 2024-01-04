@@ -31,11 +31,11 @@ date: "2024-01-02"
 
 2.  Character:
 
-    -   Represents textual data, such as words, sentences.
+    -   Represents textual data, such as symbols, words, sentences.
 
     -   Enclosed in quotation marks (" ") or single quotes (' ').
 
-    -   Example: "Hello", 'R programming'
+    -   Example: "Hello", "1.0", 'R programming'
 
 3.  Logical:
 
@@ -77,10 +77,10 @@ date: "2024-01-02"
 ```{r}
 #vector of characters
 names <- c("Lars", "Hilde", "Alex")
-
+print(names)
 #vector of integers
 numbers <- 1:10
-
+print(numbers)
 names[2]
 numbers[4]
 ```
@@ -110,10 +110,15 @@ The list is in many ways **like a vector**, but the **big difference is that a l
 To create a list we use the list command
 
 ```{r}
+my.list <- list("Donald",
+                c(Age = 71, Weight = 120, Height = 187), FALSE)
+print(my.list)
 my.list <- list(Name = "Donald",
                 Data = c(Age = 71, Weight = 120, Height = 187),
                 Is.female = FALSE)
-my.list
+print(my.list)
+
+
 ```
 
 Here we named each element in the list, which is not required but often done. The first element is a text, the second is a (named) vector of numbers, and the third is a `logical`.
@@ -131,6 +136,10 @@ a <- list()
 print(a)
 a <- c(a,race = "duck",wealth = 10)
 print(a)
+a <- c(a,FALSE)
+print(a)
+a <- c(TRUE,a)
+print(a)
 ```
 
 Multiple lists can be merged with all those lists into one single list structure
@@ -142,16 +151,17 @@ print(my.list)
 
 ## **Indexing a list**
 
-If we have a named list we can use the `$` operator to access the elements:
+If we have a **named** list we can use the `$` operator to access the elements:
 
 ```{r}
-v <- my.list$Data
+my.list$Data
 ```
 
 We can also use the `$` notation to add a new named element to an existing list:
 
 ```{r}
 my.list$Copyright <- "Disney"
+my.list
 ```
 
 and the element named **Copyright** is added to `my.list`. Note that had we used an existing name, the content of that element had now been changed, without any warning!
@@ -159,26 +169,30 @@ and the element named **Copyright** is added to `my.list`. Note that had we u
 In some cases the elements have no names, or we need to access all elements in a (long) list. It is impossible/impractical to use names in such cases, and we need to access the elements by index, i.e. the position they have in the `list`. If we do it as we did for vectors:
 
 ```{r}
-x <- my.list[1]
+x <- my.list[6]
 print(x)
 print(typeof(x))
+#x-2
 ```
 
-you can observe that `x` is now another list of length 1. Thus, a simple index will only subset the list, and not really give us access to the *content* of the list-elements. To get this we must use double brackets:
+you can observe that `x` is now another list of length 1. Thus, a simple index will only subset the list, and not really give us access to the ***content*** of the list-elements. To get this we must use double brackets:
 
 ```{r}
-x <- my.list[[1]]
+x <- my.list[[6]]
 print(x)
 print(typeof(x))
+x-2
 ```
 
-This time `x` is the text `"Donald"`, which is the *content* of the first list-element that is an instance of the character class. Please note this right away:
+This time `x` is the integer which is the ***content*** of the 6th list-element that is an instance of the integer class.
 
--   Think of a list as a series of list-elements (bags)
+Please note this right away:
 
--   Using single brackets on a list will subset it to a (shorter) list (of bags)
+-   Think of a list as a series of list-elements (**bags**)
 
--   Using double brackets will access the *content* of the list-element (content of bag)
+-   Using single brackets **[]** on a list will subset it to a **(shorter)** list (of bags)
+
+-   Using double brackets **[[]]** will access the *content* of the list-element (content of bag)
 
 ![Figure 5. A visualization of a list in R. The list is a sequence of list-elements (bags), and inside each we can store one object of any kind, even another list.](https://arken.nmbu.no/~jonvi/stin300/fig/list.PNG)
 
@@ -218,7 +232,17 @@ Avoiding looping is also only a long term goal. For beginners it is better to fi
 
 The `for`-loop exists in virtually all programming languages. Here is the R syntax template:
 
-``` r
+Here is the syntax template
+
+```         
+while(<logical expression>){
+  # code
+}
+```
+
+and more specific example
+
+```{r}
 vector = c("a","b","c")
 for(element in vector){
   print(element)
@@ -229,7 +253,7 @@ Note the keywords `for` and `in`, the parentheses and curly braces.
 
 The `element` is like any object in R, and you can name it whatever you like (well, you cannot name it `for`, `in`, `function` `return`, etc.). It often has a short name, like `i` , `j` etc. It will take the values listed in `vector`. This can be any vector, either something already created, or you create it here (e.g. by `1:10`). Inside the braces is the loop-code. This can in principle be any code.
 
-The idea of a `for`-loop is to repeat the code inside the braces as many times as there are elements in `vector`. Thus, `length(vector)` becomes the number of repetitions. Then, for each repetition, the values in `vector` will be copied into `element`, one by one, i.e. the object `loop.object` will have taken each value in `vector` once when the loop is done. Quite frequently, the code inside the loop makes use of these values.
+The idea of a `for`-loop is to repeat the code inside the braces as many times as there are elements in `vector`. Thus, `length(vector)` becomes the number of repetitions. Then, for each repetition, the values in `vector` will be copied into `element`, one by one, i.e. the object `element` will have taken each value in `vector` once when the loop is done. Quite frequently, the code inside the loop makes use of these values.
 
 Here is a very simple example:
 
@@ -246,6 +270,7 @@ The `for`-loops are typically used when we *know* in advance how many times w
 Let us look at an example using the `my.list` object from we created above. We want to know if the elements in this list are `character`, i.e. contains a character instance. This is how we could do it:
 
 ```{r}
+print(my.list)
 N <- length(my.list)           # the length of the list
 char.elem <- rep(FALSE, N)  # vector where we keep track of the results
 for(i in 1:N){
@@ -273,6 +298,7 @@ for(GAGAGAGAGAGAGAGA in 1:N){
   content <- my.list[[GAGAGAGAGAGAGAGA]]
   char.elem[GAGAGAGAGAGAGAGA] <- is.character(content)
 }
+print(char.elem)
 ```
 
 The **vector** in the loop header does not have to contain the integers from 1 to some length. Any vector can do (in fact it can be **any iterable data structure** that has a length) but it depends on what the code inside the loop is doing. Remember:

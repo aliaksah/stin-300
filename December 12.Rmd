@@ -239,3 +239,7 @@ v2 <- c(3, 4, 5, 4, 7)
 count_diff_values(v1,v2)
 
 ```
+
+## **Exercise**
+
+Time to finish other exercises from the last three days.
