@@ -21,17 +21,19 @@ This is a fairly advanced topic: every data frame is rectangular in the same way
 
 We repeat some stuff from previous days by doing the following exercise.
 
--   Data types
+-   Data types (`numeric`, `integer`, `character`, etc)
 
--   Data structures
+-   Data structures (`vector`, `list`, `matrix`, `data.frame`)
 
 -   Building functions
 
--   Looping
+-   Looping (`while`, `for`)
+
+-   Conditionals (`if ... else`)
 
 # **The `apply` family of functions**
 
-Good R code avoids looping.
+**Good R code avoids looping.**
 
 But still, sometimes we need a loop to
 
@@ -47,9 +49,6 @@ The `apply` family of R functions simplify such operations and avoid explicit 
 | lapply   | List apply: apply function to each element of a list, returning a list of results                                                                     |
 | mclapply | List apply: apply function to each element of a list in **parallel**, returning a list of results.                                                    |
 | sapply   | Simplifying apply: lapply(), but return vector if all return values are scalars, data frame if all return values are vectors of the same length, etc. |
-| tapply   | Horribly complicated, use group_by() and summarise() instead                                                                                          |
-| rapply   | Recursive apply (horribly complicated)                                                                                                                |
-| mapply   | Multiple apply (lapply with multiple arguments; horribly complicated)                                                                                 |
 
 ## **The `apply()` function**
 
@@ -62,7 +61,7 @@ mean.cols <- apply(M, 2, mean)  # applies mean() to the columns of M
 print(mean.cols)
 ```
 
-apply(M, 2, mean) line corresponds to the code
+`apply(M, 2, mean)` line corresponds to the code using loops:
 
 ```{r}
 mean.cols <- numeric(ncol(M))   # creates numeric vector of proper length
@@ -87,7 +86,7 @@ lst2 <- lapply(lst, length)                 # applies length() to each list elem
 print(lst2)
 ```
 
-Another option is to use `mclapply()` function, which is a parallel (multicore, hence prefix mc) version of `lappy()` function, which follows the same syntax
+Another option is to use `mclapply()` function, which is a parallel (**multicore**, hence prefix mc) version of `lappy()` function, which follows the same syntax
 
 ```{r}
 library(parallel)
@@ -124,7 +123,9 @@ We talked about how to make our own functions yesterday. The template looks like
 }
 ```
 
-It is possible to shorten this. First, the `return()` may be omitted, and then the last assigned object will be returned. Second, the name of the function may also be omitted. Then it becomes what we call an *anonymous function*. Such a function will not be stored for later use. Then why do we make it?
+It is possible to shorten this. First, the `return()` **may be omitted**, and then the last assigned object will be returned. Second, the `<name>` **of the function may also be omitted**. Then it becomes what we call an *anonymous function*.
+
+**Such a function will not be stored for later use. Then why do we make it? - One time use!**
 
 We have seen that when we use one of the apply-functions, we need to specify a function as one of the inputs.
 
