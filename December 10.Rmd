@@ -427,7 +427,7 @@ Now use a for loop with if else statements to record the corresponding Fibonacci
 
 <https://en.wikipedia.org/wiki/Fibonacci_sequence>
 
-Do the same for the **list.1** data structure in the second list. Use Sys.time to record the run-time of the two loops. Does it take longer with lists?
+Do the same for the **list.1** data structure. Use Sys.time to record the run-time of the two loops. Does it take longer with lists?
 
 Example of Sys.time() function
 
@@ -550,7 +550,7 @@ to simulate the outcome of rolling `5` dice. When you want to roll fewer dice,
 
 To check how many of them have the value 6 you can use `sum(d == 6)`.
 
-Make a `while`-loop that keeps on rolling dice until all dice have been collected. Also, keep track of how many rolls were made (repetitions of the `while`-loop). This is best done by having a integer object that increases with 1 in each repetition.
+Make a `while`-loop that keeps on rolling dice until all dice have been collected. Also, keep track of how many rolls were made. This is best done by having a integer object that increases with 1 in each repetition.
 
 Here are some lines of suggested solution:
 

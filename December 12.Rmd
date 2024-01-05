@@ -42,7 +42,7 @@ But still, sometimes we need a loop to
 The `apply` family of R functions simplify such operations and avoid explicit looping. They differ slightly in name and how they work, but are all ways of doing some kind of looping.
 
 | Function | Description                                                                                                                                           |
-|----------|-------------------------------------------------------------------------------------------------------------------------------------------------------|
+|----------------|--------------------------------------------------------|
 | apply    | Apply function to rows or columns of a matrix (generalizes to multidimensional arrays)                                                                |
 | lapply   | List apply: apply function to each element of a list, returning a list of results                                                                     |
 | mclapply | List apply: apply function to each element of a list in **parallel**, returning a list of results.                                                    |
@@ -237,6 +237,78 @@ v1 <- c(1, 2, 3, 4, 4)
 v2 <- c(3, 4, 5, 4, 7)
 
 count_diff_values(v1,v2)
+
+```
+
+## **Exercise - the Yatzy distribution**
+
+Replace the for loop for repeating the game in the Yatzy exercise from two days ago with a `mclappy()` or `lapply()` to vectorize the code.
+
+Possible solution
+
+```{r}
+library(parallel)
+# How many times to repeat the experiment
+N.sim <- 1000
+res.tab <- mclapply(1:N.sim,FUN = function(i){
+  n.dice <- 5  # Reset the number of dice we have left. (Set to 6 for "maxi-yatzy"!)
+  n.rolls <- 0  # Reset the roll counter for this experiment
+  target.value <- 0  # What die-value to collect (0 = not decided yet)
+  while(n.dice > 0){
+    # As long as we have dice left that are not part of our yatzy:
+  
+    # Roll dice: Sample from the possible values of a die (one to six), n.dice times.
+    # Set replace = TRUE because e.g. 
+    # rolling one "4" does not prevent you from rolling another.
+    d <- sample(1:6, size = n.dice, replace = TRUE)
+    
+    if(target.value > 0){
+      # We have picked our target value, e.g. collecting fours means target.value == 4.
+      
+      # "Set aside" any dice having our target value and so contributing to our yatzy.
+      # This reduces the number of remaining dice.
+      n.dice <- n.dice - sum(d == target.value)
+    } else {
+      # target.value is still zero, meaning we haven't picked a target value yet.
+      
+      # Tabulate the values of our rolled dice.
+      # For illustration, look at sort(table(c("c", "o", "f", "f", "e", "e")), decreasing = TRUE)
+      freq <- sort(table(d), decreasing = TRUE)
+      # The first element of freq is the *count* of the most frequent element.
+      # The *name* of this element holds our target die value.
+      largest.freq <- freq[1]
+      if(largest.freq >= 3){
+        # We only start collecting if we have at least three equal values
+        
+        # Which value do we want to collect? The most frequent one!
+        # As mentioned, this is given by the *name* of freq[1]
+        target.value <- as.integer(names(freq[1]))
+        
+        # Compute how many more dice we need for our yatzy.
+        n.dice <- n.dice - sum(d == target.value)
+        # Without it, we "forget" to keep our already-rolled dice 
+        # having the target value. Thus we spend more rolls than necessary.
+      }
+    }
+    # Keep count of how many rolls we've made
+    n.rolls <- n.rolls + 1
+  }
+  # Output the results so far
+  #cat("Needed", n.rolls, "rolls to get five", target.value, "'s\n")
+  # Store the results of this simulation.
+  return(c(Rolls = n.rolls, Value = target.value))
+})
+
+res.tab <- unlist(res.tab)
+
+rolls <- res.tab[names(res.tab) == "Rolls"]
+
+
+qtab <- list(Q05 = quantile(rolls, 0.05), Q95 = quantile(rolls, 0.95))
+
+hist(rolls,main = str_c("5% quantile=", qtab$Q05, 
+                     ", Mean=", mean(rolls), 
+                     ", 95% quantile=", qtab$Q95))
 
 ```
 
