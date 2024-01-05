@@ -45,9 +45,25 @@ We typically use a `for` loop when we
 
 A typical example is to loop through a list, and do something for each element in the list. But loops are also used in many other situations.
 
+## **The `while` loop**
+
+We typically use a `while` loop when we
+
+-   Want to repeat some code until a specific condition is no longer true
+
+-   We do not now how much time it takes
+
+## **The `if ... else` conditionals**
+
+We typically use a **`if ... else`** conditionals when we
+
+-   Want to branch the code based on some condition
+
+-   Know exactly how many times
+
 # **Building functions**
 
-In the long run, it is impossible to only make use of functions made by others. If we knew all functions in all R packages(!), we could probably come a very long way, but quite often we end up building our own function instead of looking for it elsewhere. It may simply be simply less work. And from time to time we need a very specific function that probably no one has made before us.
+We have used functions `c()`, `str_length()`, `print()` and other so far. And there are many others in **base** **R** and **R packages**. In the long run, it is impossible to only make use of functions made by others. If we knew all functions in all R packages(!), we could probably come a very long way, but quite often we end up building our own function instead of looking for it elsewhere. It may simply be simply less work. And from time to time we need a very specific function that probably no one has made before us.
 
 ## **The syntax**
 
@@ -100,7 +116,7 @@ mDist <- function(x, y){
 }
 #run by
 mDist(x = 1:3, y = 2:4)
-mDist(y = 1:3, x = 2:4)
+mDist(y = 2:4, x = 1:3)
 #or
 mDist(1:3, 2:4)
 #but here the order matters
@@ -184,6 +200,8 @@ Most functions take one or several arguments, the input we give them. They do so
 ```{r}
 v <- c(1,4,2,5,6,3)  # numeric vector
 y <- mean(v)         # use v as argument, store output in y
+print(v)
+#mean()
 ```
 
 Looking at `?mean` we see that its usage is also described as
@@ -206,9 +224,9 @@ y <- mean(v, na.rm = TRUE)
 
 if you do not name the options, you need to specify them in exactly the order listed in the Help-file.
 
-To summarize:
+**To summarize:**
 
--   Functions have required arguments, possibly followed by some options.
+-   Functions have **required arguments**, possibly followed by some **options**.
 
 -   The function will not work without input to the required arguments.
 
@@ -294,6 +312,7 @@ print(df)
 We index a matrix using indices of rows and then columns
 
 ```{r}
+M
 print(M[1,2])
 ```
 
@@ -304,28 +323,43 @@ a <- M[1,]   # copy row 1 into a
 print(a)
 b <- M[,2]   # copy column 2 into b
 print(b)
-c <- M[4]    # What? We can use only one index?
+c <- M[1:2,3]   # copy column 2 into b
 print(c)
 ```
 
-The last assignment also works! It is the same as `M[1,2]` in this case. Remember, a matrix is just a vector arranged into rows and columns. Using the good old vector indexing works, and we count from the upper left corner and down the columns, thus element number 4 is the first element in column 2 (since the first column has 3 elements).
+The last assignment also works! It is the same as `M[1,2]` in this case. Remember, a matrix is just a vector arranged into rows and columns.
 
 We can put names on rows and columns:
 
 ```{r}
 colnames(M) <- c("Col1", "Col2","Col3")
+M
+rownames(M) <- c("Row1", "Row2","Row3")
+M
 ```
 
 ...but we cannot use the `$` to refer to a column like we did for lists!
 
 We can *bind* matrices using functions `rbind()` and `cbind()` to bind on rows and columns respectively.
 
+```{r}
+
+M <- matrix(1:9, nrow = 3, ncol = 3)
+
+K <- matrix(10:18, nrow = 3, ncol = 3)
+
+KM <- cbind(M,K)
+KM
+KM <- rbind(KM,KM) 
+KM
+```
+
 ## **Mathematical operations**
 
 We can think of a matrix of numeric or integers as a mathematical object, and there are a number of mathematical operations we can perform on matrices. We will not dig into this, but mention some of them. The *transpose* function `t()`, which means flipping the matrix over such that columns become rows and vice versa:
 
 ```{r}
-print(t(M))
+t(M)
 ```
 
 Matrix multiplication (inner product) is the operator `%*%`:
@@ -361,7 +395,7 @@ df <- data.frame(
 print(df)
 ```
 
-We can now add a column to an excising data.frame similarly to how we would do that for a list
+We can now **add a column to an excising data.frame** similarly to how we would do that for a list
 
 ```{r}
 df$bmi <- df$weight/((df$height/100)^2)
@@ -388,7 +422,7 @@ df[[3]][1:2]
 But, we can also index the table similarly to the matrix, i.e. using two indices separated with comma inside the brackets. We can also index entire rows and columns, like this
 
 ```{r}
-a <- df[1,]   # copy row 1 into a
+a <- df[1:4,]   # copy row 1 into a
 print(a)
 b <- df[,2:3]   # copy column 2 into b
 print(b)
@@ -408,7 +442,7 @@ zort <- function(x){
 }
 
 y <- zort(x)
-print(x)
+#print(y)
 ```
 
 Discuss before running the code: What will be printed?
@@ -499,7 +533,7 @@ par(mar = c(3,1,1,10))
 plot(as.dendrogram(tree), horiz=T)
 ```
 
-## **Exercise - distance matrix**
+## **Exercise - data.frame manipulations**
 
 In our data.frame df defined in the lecture add a column Age with values 24,30,55,19,74,45,97,17,22,77. Then use for loops and if else statements to define a column **`above_mean_age`** following compute a column of whether individual has the above average (**"Yes"**) or not (**"No"**) in our data.frame
 
