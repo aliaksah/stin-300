@@ -236,7 +236,7 @@ Avoiding looping is also only a long term goal. For beginners it is better to fi
 
 The `for`-loop exists in virtually all programming languages. Here is the R syntax template:
 
-Here is the syntax template
+Here is the syntax template with *keywords* `for`, and `in`
 
 ```         
 for(<iterator> in <sequence>)

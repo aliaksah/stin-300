@@ -81,13 +81,13 @@ $$
 d(x,y) = 1/N\sum_{i=1}^N|x_i-y_i|
 $$
 
-...or in words; the mean of the absolute elementwise differences between the components of the two vectors.
+...or in words; the **mean of the absolute element-wise differences** between the components of the two vectors.
 
 First, we need to think about the function input and output. We start out simple:
 
--   The function should take two arguments, two vectors with `numeric` values.
+-   The function **should take two arguments**, two vectors with `numeric` values.
 
--   The function should give as output a single `numeric` value, the computed distance.
+-   The function **should give as output a single** `numeric` value, the computed distance.
 
 The name of the function we choose to be `mDist()`.
 
@@ -120,7 +120,7 @@ Think of all the functions in all the packages we load! If all objects created i
 
 The point is that a function has a *contract with its users by specifying its arguments and its output*. **Nothing more**. You, as a user, need to know what to put into it, and what to get out, not how things are solved inside.
 
-When we execute our function, we can 'freeze' its execution by putting a *browser point* inside it. We either click in the left margin in RStudio, or as shown here, use the function `browser()`:
+When we execute our function, we can 'freeze' its execution by putting a ***browser point*** inside it. We either click in the left margin in RStudio, or as shown here, use the function `browser()`:
 
 ```{r}
 mDist1 <- function(x, y){
@@ -194,9 +194,9 @@ mean(x, trim = 0, na.rm = FALSE, ...)
 
 We can obviously also send further arguments to this function, one named `trim` and one named `na.rm` (and one named `...`, which is special). If we look down the Help file, the arguments are explained. It says that `trim` must be a value from 0.0 to 0.5, and `na.rm` must be either `TRUE` or `FALSE`. Notice that they both have already been given a *default* value, with `trim = 0` and `na.rm = FALSE`.
 
-The first argument to `mean()` is named `x` and this is a *required argument*. This is the vector we are computing the average from. Without this information, the function cannot do its job. A required argument **never** has a default value; the user *must* supply something.
+The first argument to `mean()` is named `x` and this is a ***required argument***. This is the vector we are computing the average from. Without this information, the function cannot do its job. A required argument **never** has a default value; the user *must* supply something.
 
-The other arguments to `mean()` are *optional arguments* or *options*. They already have a **default** value, and we do not have to specify them. But, we may change their value to alter the behavior of the function.
+The other arguments to `mean()` are ***optional arguments*** or ***options***. They already have a **default** value, and we do not have to specify them. But, we may change their value to alter the behavior of the function.
 
 R functions often have many arguments, and the required arguments should be listed first, followed by the options. When we use the function, we may provide data for some of the options, and it is a good habit to *name* the options when we use them, like this:
 

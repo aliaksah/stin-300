@@ -301,6 +301,7 @@ res.tab <- mclapply(1:N.sim,FUN = function(i){
 
 res.tab <- unlist(res.tab)
 
+#get only rolls
 rolls <- res.tab[names(res.tab) == "Rolls"]
 
 
