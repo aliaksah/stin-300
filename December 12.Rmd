@@ -42,7 +42,7 @@ But still, sometimes we need a loop to
 The `apply` family of R functions simplify such operations and avoid explicit looping. They differ slightly in name and how they work, but are all ways of doing some kind of looping.
 
 | Function | Description                                                                                                                                           |
-|------------|------------------------------------------------------------|
+|----------|-------------------------------------------------------------------------------------------------------------------------------------------------------|
 | apply    | Apply function to rows or columns of a matrix (generalizes to multidimensional arrays)                                                                |
 | lapply   | List apply: apply function to each element of a list, returning a list of results                                                                     |
 | mclapply | List apply: apply function to each element of a list in **parallel**, returning a list of results.                                                    |

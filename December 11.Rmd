@@ -5,9 +5,9 @@ output: html_document
 date: "2024-01-02"
 ---
 
-# [*Creating functions.*]{.underline} 
+# [*Creating functions.*]{.underline}
 
-# [*The matrix data structure.*]{.underline} 
+# [*The matrix data structure.*]{.underline}
 
 # [*Data frames*]{.underline}
 
@@ -27,7 +27,7 @@ The hyperlinks point to reference literature.
 
 # **Recap**
 
-Today we'll have a bit of an extended recap.
+Today we'll have a bit of an extended **recap.**
 
 ## **Lists**
 

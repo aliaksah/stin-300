@@ -5,9 +5,9 @@ output: html_document
 date: "2024-01-02"
 ---
 
-# [*The list data structure.*]{.underline} 
+# [*The list data structure.*]{.underline}
 
-# [*Loops.*]{.underline} 
+# [*Loops.*]{.underline}
 
 # [*The "if...else" statement*]{.underline}
 
@@ -113,6 +113,7 @@ To create a list we use the list command
 my.list <- list("Donald",
                 c(Age = 71, Weight = 120, Height = 187), FALSE)
 print(my.list)
+
 my.list <- list(Name = "Donald",
                 Data = c(Age = 71, Weight = 120, Height = 187),
                 Is.female = FALSE)
@@ -134,11 +135,13 @@ Sometimes we create an empty `list` that we later fill in, and this is done by
 ```{r}
 a <- list()
 print(a)
+#append on the right
 a <- c(a,race = "duck",wealth = 10)
 print(a)
 a <- c(a,FALSE)
 print(a)
-a <- c(TRUE,a)
+#append on the left
+a <- c(log = TRUE,a)
 print(a)
 ```
 
@@ -169,6 +172,7 @@ and the element named **Copyright** is added to `my.list`. Note that had we u
 In some cases the elements have no names, or we need to access all elements in a (long) list. It is impossible/impractical to use names in such cases, and we need to access the elements by index, i.e. the position they have in the `list`. If we do it as we did for vectors:
 
 ```{r}
+print(my.list)
 x <- my.list[6]
 print(x)
 print(typeof(x))
@@ -235,17 +239,18 @@ The `for`-loop exists in virtually all programming languages. Here is the R syn
 Here is the syntax template
 
 ```         
-while(<logical expression>){
-  # code
-}
+for(<iterator> in <sequence>)
+{ # loop body start
+  # loop body code
+} # loop body ends
 ```
 
 and more specific example
 
 ```{r}
-vector = c("a","b","c")
-for(element in vector){
-  print(element)
+letters = c("a","b","c")
+for(l in letters){
+  print(l)
 }
 ```
 
@@ -259,7 +264,7 @@ Here is a very simple example:
 
 ```{r}
 for(i in 1:10){
-  print(i)
+  print(i^2)
 }
 ```
 
@@ -330,19 +335,17 @@ while(<logical expression>){
 
 The `<logical expression>` must be something that results in a single `TRUE` or `FALSE`. As long as this results in `TRUE` the loop keeps on repeating. Thus, it is essential that this expression involves some objects whose value *changes* as an effect of what happens inside the loop, otherwise it repeats forever!
 
-Here is an example that shows us that `Inf` in R is not really infinity(!):
-
 ```{r}
 x <- 2
-while(is.finite(x)){
-  print(x)
+while(x < 10^10){
   x <- x * x
+  print(x)
 }
 ```
 
-We start out by creating the object `x` and give it the value 2. The function `is.finite()` returns `TRUE` as long as the input is some number, and returns `FALSE` if it is `Inf`, which is the **R-symbol for infinite**. Inside the loop we print `x`, and then we square it. The latter is crucial. In the logical expression of the `while`-loop we make some test/comparison on `x`. Then this object *must change* inside the loop, otherwise this test/comparison will turn out the same forever. Mathematically this loop should run forever, since doubling will never take us to infinitiy, but fortunately, computers can never handle very big numbers, and we reach `Inf`after some iterations.
+We start out by creating the object `x` and give it the value 2. Inside the loop we print `x`, and then we square it until R thinks we have reached `10^10`. The latter is crucial. In the logical expression of the `while`-loop we make some test/comparison on `x`. Then this object *must change* inside the loop, otherwise this test/comparison will turn out the same forever.
 
-# **Conditions**
+**Conditions**
 
 Together with loops, conditionals are used to control how the program is executed. Before this all our scripts were executed from top down, line by line. With loops we can repeat code multiple times. With conditionals we can *branch* the execution based on specific conditions.
 
@@ -400,9 +403,9 @@ If the code in the `if-else` branches simply assigns some value to an object, 
 
 -   The logical expression
 
--   the value to assign if `TRUE`
+-   the value **to return** if `TRUE`
 
--   and the value to assign if `FALSE`.
+-   and the value **to return** if `FALSE`.
 
 Here is a simple example:
 
@@ -410,7 +413,7 @@ Here is a simple example:
 library(stringr)# a package to work with characters. We need str_length()
 for(a in list("This","is","a","test")){
   txt <- ifelse(str_length(a) > 3, "long", "short")
-  cat("The word", a, "is", txt, "\n")
+  cat("The word \"", a, "\" is ", txt, "\n")
 }
 ```
 
