@@ -102,18 +102,9 @@ Notice from the output that in this case, each list-element in `lst2` contains
 The function `sapply()` is quite similar to `lapply()` but will try to output a vector or matrix, i.e. *simplify* the output. If the applied function outputs elements of the same type and size from all data structure elements, it is possible to put this into a vector or matrix. However, if this simplification is not possible, then `sapply()` also returns the result as a list. Let us demonstrate:
 
 ```{r}
+lst
 v <- sapply(lst, length)
 print(v)
-```
-
-```{r}
-library(stringr)
-poem <- readLines("https://arken.nmbu.no/~jonvi/stin300/data/poem_unknown.txt")  # reads poem line by line
-print(poem)
-lst <- str_split(poem, pattern = " ")       # split each line into words
-print(lst)
-vec2 <- sapply(lst, length)                 # applies length() to each list element
-print(vec2)
 ```
 
 ## **Anonymous functions**
