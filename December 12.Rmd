@@ -11,12 +11,6 @@ date: "2024-01-03"
 
 Become familiar with the functions `apply()`, `lapply()` `mclapply()`, and `sapply()`, which spare you the effort of writing `for` loops in some common situations. They are often used with anonymous functions, which is less scary than it sounds.
 
-*Optional/nerd alert:*
-
-There do exist even more \*apply functions, but they can be confusing to use: `tapply()`, `mapply()`, `rapply()`.
-
-This is a fairly advanced topic: every data frame is rectangular in the same way, while every list is complicated in its own way. If you think you have use for these techniques, the relevant chapter of R for Data Science is [iteration](https://r4ds.had.co.nz/iteration.html), including purrr's [shorthand for writing anonymous functions](https://r4ds.had.co.nz/iteration.html#shortcuts) and the two blog posts linked above.
-
 # **Recap**
 
 We repeat some stuff from previous days by doing the following exercise.
@@ -82,6 +76,7 @@ library(stringr)
 poem <- readLines("https://arken.nmbu.no/~jonvi/stin300/data/poem_unknown.txt")  # reads poem line by line
 print(poem)
 lst <- str_split(poem, pattern = " ")       # split each line into words
+print(lst)
 lst2 <- lapply(lst, length)                 # applies length() to each list element
 print(lst2)
 ```
@@ -111,6 +106,16 @@ v <- sapply(lst, length)
 print(v)
 ```
 
+```{r}
+library(stringr)
+poem <- readLines("https://arken.nmbu.no/~jonvi/stin300/data/poem_unknown.txt")  # reads poem line by line
+print(poem)
+lst <- str_split(poem, pattern = " ")       # split each line into words
+print(lst)
+vec2 <- sapply(lst, length)                 # applies length() to each list element
+print(vec2)
+```
+
 ## **Anonymous functions**
 
 We talked about how to make our own functions yesterday. The template looks like this:
@@ -134,7 +139,9 @@ Here is an example, where we (for some reason) want to extract he second word on
 ```{r}
 poem <- readLines("https://arken.nmbu.no/~jonvi/stin300/data/poem_unknown.txt")
 lst <- str_split(poem, pattern = " ")
-second.word <- sapply(lst, function(x){x[2]})
+lst
+second.word <- sapply(lst, function(x)x[2])
+second.word
 ```
 
 Now recall yesterday's exercise on language distances with the suggested solution
@@ -158,6 +165,7 @@ for(i in 1:nc){
     D[i,j] <- lDist(languages[,i], languages[,j])
   }
 }
+head(D)
 ```
 
 let us now get rid of the nested loop and generate the distance matrix in a more elegant vectorized form of coding
