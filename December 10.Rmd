@@ -110,6 +110,7 @@ The list is in many ways **like a vector**, but the **big difference is that a l
 To create a list we use the list command
 
 ```{r}
+
 my.list <- list("Donald",
                 c(Age = 71, Weight = 120, Height = 187), FALSE)
 print(my.list)
