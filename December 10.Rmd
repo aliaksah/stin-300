@@ -120,7 +120,9 @@ my.list <- list(Name = "Donald",
                 Is.female = FALSE)
 print(my.list)
 
-
+c(1,2,4)*4 + 100
+#but the same for list will give an error
+#list(1,2,4)*2 
 ```
 
 Here we named each element in the list, which is not required but often done. The first element is a text, the second is a (named) vector of numbers, and the third is a `logical`.
@@ -158,7 +160,7 @@ print(my.list)
 If we have a **named** list we can use the `$` operator to access the elements:
 
 ```{r}
-my.list$Data
+my.list$Name
 ```
 
 We can also use the `$` notation to add a new named element to an existing list:
@@ -211,7 +213,8 @@ Here is the *big* problem with lists: You cannot access the list-element conte
 This works as long as you use single brackets
 
 ```{r}
-elements <- my.list[1:4]
+my.list
+elements <- my.list[c(1,4,5,7)]
 print(elements)
 ```
 
@@ -220,7 +223,7 @@ because then you select a subset of the list, which is just a shorter list. But 
 In some cases the list contains only elements of the same data type. In such cases you may `unlist()` a list. This means we 'peel off' the list element wrapping, and put all contents into a single vector.
 
 ```{r}
-unlist(list(1,2,3,4,5,6))[3:5]
+unlist(list(1,2,3,4,5,6))[3:5] * 8
 ```
 
 Use `unlist()` with care, you may lose essential information by such `unlist`ing.
@@ -267,6 +270,8 @@ Here is a very simple example:
 for(i in 1:10){
   print(i^2)
 }
+
+
 ```
 
 Here the loop-object is named `i`. The vector is created on-the-fly as `1:10`. This means the loop will repeat 10 times, since the vector has 10 elements. Inside the loop we just print the value of `i`. In the first iteration `i` is `1` since this is the first element in the loop vector. In the second repetition `i` has the value `2` and so on.
