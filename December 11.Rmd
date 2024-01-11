@@ -175,6 +175,7 @@ It is possible to make use of global objects inside a function using \<\<- opera
 ```{r}
 mDist2 <- function(x, y){
   distance <<- mean(abs(x - y))
+  vec1 <<- "Error!"
   return(distance)
 }
 mDist2(1:3, 2:4)
@@ -204,7 +205,7 @@ Most functions take one or several arguments, the input we give them. They do so
 v <- c(1,4,2,5,6,3)  # numeric vector
 y <- mean(v)         # use v as argument, store output in y
 print(y)
-#mean()
+mean()
 ```
 
 Looking at `?mean` we see that its usage is also described as
@@ -226,6 +227,10 @@ y <- mean(v, na.rm = TRUE)
 ```
 
 if you do not name the options, you need to specify them in exactly the order listed in the Help-file.
+
+```{r}
+mean(x = c(1,2,33,55,5,NA),trim = 0, na.rm = T)
+```
 
 **To summarize:**
 
@@ -250,13 +255,13 @@ mDist(vec1, vec2)
 The distance becomes `NA` since one of the inputs has one `NA`, and inside our function we use `mean()`, where any `NA` makes the result `NA`. However, we saw previously that `mean()` has an option for dealing with this, the `na.rm` option. Let us add the same option to our function as well:
 
 ```{r}
-mDist <- function(x, y, na.rm = FALSE){
-  distance <- mean(abs(x - y), na.rm = na.rm)
+mDist <- function(x, y, na.rm.dist = FALSE){
+  distance <- mean(abs(x - y), na.rm = na.rm.dist)
   return(distance)
 }
 vec1 <- c(1, 3, 2, 1, NA, 3, 2)
 vec2 <- c(3, 3, 2, 1, 2, 3, 1)
-mDist(vec1, vec2, na.rm = TRUE)
+mDist(vec1, vec2, na.rm.dist = TRUE)
 ```
 
 Notice:
@@ -280,7 +285,10 @@ mDist <- function(x, y, ...){
 
 vec1 <- c(1, 3, 2, 1, NA, 3, 2)
 vec2 <- c(3, 3, 2, 1, 2, 3, 1)
-mDist(vec1, vec2, na.rm = T)
+mDist(vec1, vec2, na.rm = T, trim = 0.1)
+
+
+mean(c(1,2,3,4,5,6,NA),na.rm = T)
 ```
 
 Notice we just pass on the `...` to `mean()` without knowing what it is. It is now up to the `mean()` machine to make use of this, or not.
@@ -301,6 +309,7 @@ Examples of matrices and data.frames
 #Create a matrix 
 M <- matrix(1:9, nrow = 3, ncol = 3)
 print(M)
+M[1,2]
 # Create a data frame with weights and heights for male and female
 df <- data.frame(
   gender = c("male","male","male","male","male","female", "female","female","female","female"), # see help(rep), i.e. rep repeats "male" 5 times and returns a vector, 
@@ -316,17 +325,18 @@ We index a matrix using indices of rows and then columns
 
 ```{r}
 M
-print(M[1,2])
+print(M[3,2])
 ```
 
 i.e. using two indices separated with comma inside the brackets. We can also index entire rows and columns, like this
 
 ```{r}
+M
 a <- M[1,]   # copy row 1 into a
 print(a)
 b <- M[,2]   # copy column 2 into b
 print(b)
-c <- M[1:2,3]   # copy column 2 into b
+c <- M[1:2,c(1,3)]   # copy column 2 into b
 print(c)
 ```
 
@@ -335,10 +345,12 @@ The last assignment also works! It is the same as `M[1,2]` in this case. Remem
 We can put names on rows and columns:
 
 ```{r}
+M
 colnames(M) <- c("Col1", "Col2","Col3")
 M
 rownames(M) <- c("Row1", "Row2","Row3")
 M
+#M$Col1
 ```
 
 ...but we cannot use the `$` to refer to a column like we did for lists!
@@ -356,6 +368,8 @@ KM <- cbind(M,K)
 KM
 KM <- rbind(KM,KM) 
 KM
+
+#cbind(KM,M)
 ```
 
 ## **Mathematical operations**
@@ -363,6 +377,7 @@ KM
 We can think of a matrix of numeric or integers as a mathematical object, and there are a number of mathematical operations we can perform on matrices. We will not dig into this, but mention some of them. The *transpose* function `t()`, which means flipping the matrix over such that columns become rows and vice versa:
 
 ```{r}
+M
 t(M)
 ```
 
@@ -371,6 +386,8 @@ Matrix multiplication (inner product) is the operator `%*%`:
 ```{r}
 M.sq <- t(M) %*% M
 print(M.sq)
+
+M.sq * 10 + 5
 ```
 
 You can also multiply a vector and a matrix with this product as long as the dimensions match.
@@ -397,6 +414,7 @@ df <- data.frame(
   weight = c(70, 80, 95, 75, 100, 55, 60, 120, 65, 58)
 )
 print(df)
+head(df)
 ```
 
 We can now **add a column to an excising data.frame** similarly to how we would do that for a list
@@ -432,6 +450,20 @@ b <- df[,2:3]   # copy column 2 into b
 print(b)
 c <- df[1:2,2:3]   
 print(c)
+```
+
+```{r}
+M <- matrix(c(1,2,NA,3,4,5,6,NA,7),nrow = 3,ncol = 3)
+
+M
+
+mean(M,na.rm = T)
+mean(M[,2],na.rm = T)
+mean(M[3,],na.rm = T)
+
+?colMeans
+colMeans(M,na.rm = T)
+rowMeans(M,na.rm = F)
 ```
 
 # Exercises

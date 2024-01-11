@@ -5,7 +5,7 @@ output: html_document
 date: "2024-01-03"
 ---
 
-# [*Applying a function to all items of a list.*]{.underline} *apply(), lapply(), mclapply(), sapply()*
+# [*Applying a function to all items of a list:*]{.underline} *apply(), lapply(), mclapply(), sapply()*
 
 # **Learning goals**
 
@@ -38,7 +38,7 @@ But still, sometimes we need a loop to
 The `apply` family of R functions simplify such operations and avoid explicit looping. They differ slightly in name and how they work, but are all ways of doing some kind of looping.
 
 | Function | Description                                                                                                                                           |
-|----------|-------------------------------------------------------------------------------------------------------------------------------------------------------|
+|---------------------|------------------------------------------------------------|
 | apply    | Apply function to rows or columns of a matrix (generalizes to multidimensional arrays)                                                                |
 | lapply   | List apply: apply function to each element of a list, returning a list of results                                                                     |
 | mclapply | List apply: apply function to each element of a list in **parallel**, returning a list of results.                                                    |
@@ -129,9 +129,10 @@ Here is an example, where we (for some reason) want to extract he second word on
 
 ```{r}
 poem <- readLines("https://arken.nmbu.no/~jonvi/stin300/data/poem_unknown.txt")
+poem
 lst <- str_split(poem, pattern = " ")
 lst
-second.word <- sapply(lst, function(x)x[2])
+second.word <- sapply(lst, FUN = function(x)x[2])
 second.word
 ```
 
@@ -145,6 +146,7 @@ lDist <- function(l1, l2){
   return(d)
 }
 load(url("http://arken.nmbu.no/~larssn/teach/stin300/languages.RData"))
+languages$English
 print(lDist(languages$Albanian, languages$Norwegian))
 
 nc <- ncol(languages)
