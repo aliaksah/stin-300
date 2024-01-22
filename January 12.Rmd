@@ -9,7 +9,7 @@ date: "2024-01-03"
 
 # **Learning goals**
 
-Become familiar with the functions `apply()`, `lapply()` `mclapply()`, and `sapply()`, which spare you the effort of writing `for` loops in some common situations. They are often used with anonymous functions, which is less scary than it sounds.
+Become familiar with the functions `apply()`, `lapply()` `mclapply()`, and `sapply()`, which spare you the effort of writing `for` loops in some common situations. They are often used with **anonymous functions**, which is less scary than it sounds.
 
 # **Recap**
 
@@ -37,12 +37,12 @@ But still, sometimes we need a loop to
 
 The `apply` family of R functions simplify such operations and avoid explicit looping. They differ slightly in name and how they work, but are all ways of doing some kind of looping.
 
-| Function | Description                                                                                                                                           |
-|---------------------|------------------------------------------------------------|
-| apply    | Apply function to rows or columns of a matrix (generalizes to multidimensional arrays)                                                                |
-| lapply   | List apply: apply function to each element of a list, returning a list of results                                                                     |
-| mclapply | List apply: apply function to each element of a list in **parallel**, returning a list of results.                                                    |
-| sapply   | Simplifying apply: lapply(), but return vector if all return values are scalars, data frame if all return values are vectors of the same length, etc. |
+| Function | Description                                                                                                                                                   |
+|----------|---------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| apply    | Apply function to rows or columns of a matrix (generalizes to multidimensional arrays)                                                                        |
+| lapply   | List apply: apply function to each element of a list, returning a list of results                                                                             |
+| mclapply | List apply: apply function to each element of a list in **parallel**, returning a list of results.                                                            |
+| sapply   | Simplifying apply: lapply(), but return **vector** if all return values are scalars, **data frame** if all return values are vectors of the same length, etc. |
 
 ## **The `apply()` function**
 
@@ -52,7 +52,11 @@ Let us look first at the one named only `apply()`. This one takes 3 arguments (
 M <- matrix(1:20, nrow=5)   # creates a small matrix
 print(M)
 mean.cols <- apply(M, 2, mean)  # applies mean() to the columns of M
+mean.rows <- apply(M, 1, mean)  # applies mean() to the columns of M
+print(mean.rows)
 print(mean.cols)
+# ... 
+apply(M, 1, sort, decreasing = TRUE)
 ```
 
 `apply(M, 2, mean)` line corresponds to the code using loops:
@@ -75,10 +79,14 @@ The `lapply()` function takes as first argument a data structure (e.g. a `li
 library(stringr)
 poem <- readLines("https://arken.nmbu.no/~jonvi/stin300/data/poem_unknown.txt")  # reads poem line by line
 print(poem)
+
 lst <- str_split(poem, pattern = " ")       # split each line into words
 print(lst)
 lst2 <- lapply(lst, length)                 # applies length() to each list element
 print(lst2)
+unlist(lapply(lst, length))  
+
+lapply(lst, sort)
 ```
 
 Another option is to use `mclapply()` function, which is a parallel (**multicore**, hence prefix mc) version of `lappy()` function, which follows the same syntax
@@ -87,8 +95,15 @@ Another option is to use `mclapply()` function, which is a parallel (**multicore
 library(parallel)
 print(poem)
 lst <- str_split(poem, pattern = " ")       # split each line into words
-lst2 <- mclapply(lst, length,mc.cores = 10) # applies length() to each list element on 10 cores
+lst2 <- mclapply(lst, length, mc.cores = 10) # applies length() to each list element on 10 cores
 print(lst2)
+
+mclapply(lst, sort, mc.cores = 10)
+
+lapply(1:100000000,sqrt)
+
+mclapply(1:100000000,sqrt,mc.cores = 20)
+
 ```
 
 The parallel function will only work on linux or mac OS. It is useful when the list to apply the function to is long and when applying the function is time consuming.
@@ -103,16 +118,21 @@ The function `sapply()` is quite similar to `lapply()` but will try to outpu
 
 ```{r}
 lst
+
 v <- sapply(lst, length)
 print(v)
+
+sapply(lst, sort)
 ```
+
+\
 
 ## **Anonymous functions**
 
 We talked about how to make our own functions yesterday. The template looks like this:
 
 ```         
-<name> <- function(<arguments>){
+function(<arguments>){
   <code>
   <more code>
   return(<object>)
@@ -132,7 +152,7 @@ poem <- readLines("https://arken.nmbu.no/~jonvi/stin300/data/poem_unknown.txt")
 poem
 lst <- str_split(poem, pattern = " ")
 lst
-second.word <- sapply(lst, FUN = function(x)x[2])
+second.word <- lapply(lst, FUN = function(x)x[1:2])
 second.word
 ```
 
@@ -145,14 +165,18 @@ lDist <- function(l1, l2){
   d <- d - sum(is.similar) * 0.5
   return(d)
 }
-load(url("http://arken.nmbu.no/~larssn/teach/stin300/languages.RData"))
-languages$English
-print(lDist(languages$Albanian, languages$Norwegian))
 
+load(url("http://arken.nmbu.no/~larssn/teach/stin300/languages.RData"))
+languages$German
+print(lDist(languages$Swedish, languages$Norwegian))
+
+languages$Swedish
+languages$Norwegian
 nc <- ncol(languages)
 D <- matrix(0, nrow = nc, ncol = nc)
 colnames(D) <- colnames(languages)
 rownames(D) <- colnames(languages)
+head(D)
 for(i in 1:nc){
   for(j in 1:nc){
     D[i,j] <- lDist(languages[,i], languages[,j])
@@ -164,8 +188,26 @@ head(D)
 let us now get rid of the nested loop and generate the distance matrix in a more elegant vectorized form of coding
 
 ```{r}
+
+compute.dist.to.all.other <- function(lan1,languages)
+{
+  sapply(languages,function(lan2)lDist(lan1,lan2))
+}
+compute.dist.to.all.other(languages$German,languages = languages)
+
+D.v.1 <- sapply(languages, compute.dist.to.all.other, languages = languages)
+head(D.v.1)
+
 D.v <- sapply(languages, function(lan1)sapply(languages,function(lan2)lDist(lan1,lan2)))
 head(D.v)
+
+
+D.v.3 <- sapply(languages, function(l1)sapply(languages,function(l2){
+  d <- sum(l1 != l2)
+  is.similar <- (l1 == "d" & l2 == "t") | (l1 == "t" & l2 == "d") | (l1 == "f" & l2 == "v") | (l1 == "v" & l2 == "f")
+  d <- d - sum(is.similar) * 0.5
+}))
+D.v.3
 ```
 
 # Exercises
