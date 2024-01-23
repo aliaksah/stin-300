@@ -5,61 +5,76 @@ date: "2024-01-19"
 output: html_document
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-```
-
-# Learning goals:
+# **Today's learning goals:**
 
 -   Assume we have several possible models
 
--   How to choose the best (cross validation, bootstrap, IC)?
+-   How to evaluate and choose the best
 
--   How to evaluate the chosen model?
+    -   Train-test splits,
+
+    -   Leave out one cross validation,
+
+    -   K-fold cross validation,
+
+    -   Bootstrap,
+
+    -   AIC, BIC combined with search
+
+        -   forward
+
+        -   backward
+
+        -   full enumeration
+
+    -   Bayes
+
+-   A bit of math, but (**no stress**) technical details are not too critical to follow
+
+# **Recap**
+
+-   Two cultures in R: base R and tidyverse (find your own, but today we shall use base R)
+
+-   Basic statistical models and tests on Monday
+
+-   Simulation and bootstrap on Tuesday
 
 # Regression and MSE
 
--   Regression: $Y=f(\boldsymbol x)+\varepsilon$
+-   Regression: $Y=f(\boldsymbol x)+\varepsilon$, where $f(\boldsymbol x)$ can be linear combination or a neural network, or any **suitable statistical model** really and $\varepsilon$ independent from $f(\boldsymbol x)$ with $E[\varepsilon] = 0$ and $Var[\varepsilon] = \sigma^2$
+
+-   No normality is assumed here!
 
 -   $\widehat Y=\hat f(\boldsymbol x)$ based on $\{(\boldsymbol x_1,y_1),...,(\boldsymbol x_n,y_n)\}$
 
--   Assume prediction of $Y$ for new $\boldsymbol x$
+-   Assume prediction of $Y_\text{new}$ for new $\boldsymbol x$ from $Y_\text{new}=f(\boldsymbol x_\text{new})+\varepsilon$ and $\widehat Y_\text{new} = \hat f(\boldsymbol x_\text{new})$,
 
--   Note: $\Rightarrow\varepsilon$ is independent of $\widehat Y$! **Evaluation of the model requires an estimate of MSE!**
+-   Note: $\Rightarrow\varepsilon$ is independent of $\widehat Y_\text{new}$!
 
-    $\text{MSE}(\boldsymbol x)=E[(\widehat Y-Y)^2]\ =E[(\widehat Y-f(\boldsymbol x)-\varepsilon)^2]$=
+-   **Evaluation of the model requires an estimate of MSE!**
 
-    $E[(\widehat Y-f(\boldsymbol x))^2]$ -
+    $\text{MSE}(\boldsymbol x_\text{new}):=E[(\widehat Y_\text{new}-Y_\text{new})^2]\ =E[(\widehat Y_\text{new}-f(\boldsymbol x_\text{new})-\varepsilon)^2]$=[additivity of expectations]
 
-    $2E[(\widehat Y f(\boldsymbol x))\varepsilon]+E[(\varepsilon)^2]$
+    $E[(\widehat Y-f(\boldsymbol x_\text{new}))^2]$ -$2E[(\widehat Y_\text{new} - f(\boldsymbol x_\text{new}))\varepsilon]+E[\varepsilon^2]$
 
-    $E[(\widehat Y-f(\boldsymbol x))^2]+\sigma^2$ , the latter ($\sigma^2$) is irreducible error
+    $=E[(\widehat Y_\text{new}-f(\boldsymbol x_\text{new}))^2]+\sigma^2$ , the latter ($\sigma^2$) is irreducible error
 
-    # Bias variance trade off
+    # Bias-variance trade off
 
-    **Further,** we have $E[(\widehat Y-f(\boldsymbol x))^2]$
+    **Further,** we have $E[(\widehat Y_\text{new}-f(\boldsymbol x_\text{new}))^2]$
 
-    $=E[(\widehat Y-E[\widehat Y]+E[\widehat Y]-f(\boldsymbol x))^2]$
+    $=E[(\widehat Y_\text{new}-E[\widehat Y_\text{new}]+E[\widehat Y_\text{new}]-f(\boldsymbol x_\text{new}))^2]$
 
-    $=E[(\widehat Y-E[\widehat Y])^2]+E[(E[\widehat Y]-f(\boldsymbol x))^2$
+    $=E[(\widehat Y_\text{new}-E[\widehat Y_\text{new}])^2]+E[(E[\widehat Y_\text{new}]-f(\boldsymbol x_\text{new}))^2$
 
-    $+2E[(\widehat Y-E[\widehat Y])(E[\widehat Y]-f(\boldsymbol x))]$
+    $+2E[(\widehat Y_\text{new}-E[\widehat Y_\text{new}])(E[\widehat Y_\text{new}]-f(\boldsymbol x_\text{new}))]$
 
-    $=\text{Var}[\widehat Y]+(E[\widehat Y]-f(\boldsymbol x))^2$ $=\text{Variance}+\text{bias}^2$!!!
+    $=\text{Var}[\widehat Y_\text{new}]+(E[\widehat Y_\text{new}]-f(\boldsymbol x_\text{new}))^2$ $=\text{Variance}+\text{bias}^2$!!!
 
     ![](images/clipboard-254487246.png){width="376"}
 
     -   **Two sources of error: Bias and Variance.**
-
-    ------------------------------------------------------------------------
-
-    **Bias:**
-
-    -   Bias - expected value of parameter estimator differs from true population value.
-
-    -   Parameter estimator is a random variable.
-
-    -   Unbiased estimator: In the long run, estimates are about right on average.
+    -   Ideally we want both small
 
     ------------------------------------------------------------------------
 
@@ -81,7 +96,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
     -   More data points lead to smaller estimation error.
 
-    -   Larger neighborhoods contain more data, reducing estimation error.
+    -   More data per parameter reducing estimation error.
 
     ------------------------------------------------------------------------
 
@@ -105,23 +120,23 @@ knitr::opts_chunk$set(echo = TRUE)
 
 # "Average" over many $\boldsymbol x$'s MSE
 
--   $\text{MSE}(\boldsymbol x)=E[(\widehat Y(\boldsymbol x)-Y(\boldsymbol x))^2]$ only related to one $\boldsymbol x$
+-   $\text{MSE}(\boldsymbol x)=E[(\widehat Y(\boldsymbol x)-Y(\boldsymbol x))^2]$ only related to one $\boldsymbol x$ (n/b I changed the notation a bit)
 
 -   In practice: Want to do predictions on **many** furture $\boldsymbol x$
 
 -   We do not know these, but assume they are drawn from som distribution $p(\boldsymbol x)$
 
 -   More natural to look at $$
-    \int_{\boldsymbol x}\text{MSE}(\boldsymbol x)p(\boldsymbol x)d\boldsymbol x=E^{p(\boldsymbol x)}[E[(\widehat Y(\boldsymbol x)-Y(\boldsymbol x))^2]]
+    E[\text{MSE}(\boldsymbol x)]=\int_{\boldsymbol x}\text{MSE}(\boldsymbol x)p(\boldsymbol x)d\boldsymbol x=E^{p(\boldsymbol x)}[E[(\widehat Y(\boldsymbol x)-Y(\boldsymbol x))^2]]
     $$
 
 # Estimation of MSE
 
-$$\int_{\boldsymbol x}\text{MSE}(\boldsymbol x)p(\boldsymbol x)d\boldsymbol x$$
+$$E[\text{MSE}(\boldsymbol x)]=\int_{\boldsymbol x}\text{MSE}(\boldsymbol x)p(\boldsymbol x)d\boldsymbol x$$
 
 $$=E_{p(\boldsymbol x)}[E[(\widehat Y(\boldsymbol x)-Y(\boldsymbol x))^2]]$$
 
--   $p(\boldsymbol x)$ unknown, but we can use the approximation:
+-   $p(\boldsymbol x)$ unknown, but we can use the Monte-Carlo approximation:
 
 -   $\int_{\boldsymbol x}\text{MSE}(\boldsymbol x)p(\boldsymbol x)d\boldsymbol x$ $\approx \frac{1}{n}\sum_{i=1}^n\text{MSE}(\boldsymbol x_i)$ $=\frac{1}{n}\sum_{i=1}^nE[(\widehat Y(\boldsymbol x_i)-Y(\boldsymbol x_i))^2]\text{ is unbiased}$
 
@@ -137,9 +152,9 @@ $$=E_{p(\boldsymbol x)}[E[(\widehat Y(\boldsymbol x)-Y(\boldsymbol x))^2]]$$
 
 ```{r}
 #let us recall yesterday and simulate some data for us to learn what I talked about above
-dataset <- data.frame(x = runif(1000,1,10))
-dataset$y.yesterday <- rnorm(1000,dataset$x,5)
-dataset$y.tomorrow <- rnorm(1000,dataset$x,5)
+dataset <- data.frame(x = runif(100,1,10))
+dataset$y.yesterday <- rnorm(100,dataset$x,5)
+dataset$y.tomorrow <- rnorm(100,dataset$x,5)
 #same conditional distribution for both days
 boxplot(dataset$y.yesterday,dataset$y.tomorrow)
 
