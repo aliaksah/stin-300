@@ -5,9 +5,11 @@ date: "2024-01-19"
 output: html_document
 ---
 
+# Cross-validation. Bootstrapping. Bias-variance trade-off. Model selection.
+
 # **Today's learning goals:**
 
--   Assume we have several possible models
+-   Assuming we have several possible models
 
 -   How to evaluate and choose the best
 
@@ -41,35 +43,37 @@ output: html_document
 
 # Regression and MSE
 
--   Regression: $Y=f(\boldsymbol x)+\varepsilon$, where $f(\boldsymbol x)$ can be linear combination or a neural network, or any **suitable statistical model** really and $\varepsilon$ independent from $f(\boldsymbol x)$ with $E[\varepsilon] = 0$ and $Var[\varepsilon] = \sigma^2$
+-   Regression: $Y=\mu(\boldsymbol x)+\varepsilon$, where the mean $\mu(\boldsymbol x)$ can be linear regression or a neural network, or any **suitable statistical model** really and $\varepsilon$ independent from $\mu(\boldsymbol x)$ with $E[\varepsilon] = 0$ and $Var[\varepsilon] = \sigma^2$
 
 -   No normality is assumed here!
 
--   $\widehat Y=\hat f(\boldsymbol x)$ based on $\{(\boldsymbol x_1,y_1),...,(\boldsymbol x_n,y_n)\}$
+-   $\widehat Y=\hat \mu(\boldsymbol x)$ based on $\{(\boldsymbol x_1,y_1),...,(\boldsymbol x_n,y_n)\}$
 
--   Assume prediction of $Y_\text{new}$ for new $\boldsymbol x$ from $Y_\text{new}=f(\boldsymbol x_\text{new})+\varepsilon$ and $\widehat Y_\text{new} = \hat f(\boldsymbol x_\text{new})$,
+-   Assume prediction of $Y_\text{new}$ for new $\boldsymbol x$ from $Y_\text{new}=\mu(\boldsymbol x_\text{new})+\varepsilon$ and $\widehat Y_\text{new} = \hat \mu(\boldsymbol x_\text{new})$,
 
 -   Note: $\Rightarrow\varepsilon$ is independent of $\widehat Y_\text{new}$!
 
 -   **Evaluation of the model requires an estimate of MSE!**
 
-    $\text{MSE}(\boldsymbol x_\text{new}):=E[(\widehat Y_\text{new}-Y_\text{new})^2]\ =E[(\widehat Y_\text{new}-f(\boldsymbol x_\text{new})-\varepsilon)^2]$=[additivity of expectations]
+    $\text{MSE}(\boldsymbol x_\text{new}):=E[(\widehat Y_\text{new}-Y_\text{new})^2]\ =E[(\widehat Y_\text{new}-\mu(\boldsymbol x_\text{new})-\varepsilon)^2]$=[additivity of expectations]
 
-    $E[(\widehat Y-f(\boldsymbol x_\text{new}))^2]$ -$2E[(\widehat Y_\text{new} - f(\boldsymbol x_\text{new}))\varepsilon]+E[\varepsilon^2]$
+    $E[(\widehat Y-\mu(\boldsymbol x_\text{new}))^2]$ -$2E[(\widehat Y_\text{new} - \mu(\boldsymbol x_\text{new}))\varepsilon]+E[\varepsilon^2]$
 
-    $=E[(\widehat Y_\text{new}-f(\boldsymbol x_\text{new}))^2]+\sigma^2$ , the latter ($\sigma^2$) is irreducible error
+    $=E[(\widehat Y_\text{new}-\mu(\boldsymbol x_\text{new}))^2]+\sigma^2$ , the latter ($\sigma^2$) is irreducible error
 
     # Bias-variance trade off
 
-    **Further,** we have $E[(\widehat Y_\text{new}-f(\boldsymbol x_\text{new}))^2]$
+    **Further,** we have $E[(\widehat Y_\text{new}-\mu(\boldsymbol x_\text{new}))^2]$
 
-    $=E[(\widehat Y_\text{new}-E[\widehat Y_\text{new}]+E[\widehat Y_\text{new}]-f(\boldsymbol x_\text{new}))^2]$
+    $=E[(\widehat Y_\text{new}-E[\widehat Y_\text{new}]+E[\widehat Y_\text{new}]-\mu(\boldsymbol x_\text{new}))^2]$
 
-    $=E[(\widehat Y_\text{new}-E[\widehat Y_\text{new}])^2]+E[(E[\widehat Y_\text{new}]-f(\boldsymbol x_\text{new}))^2$
+    $=E[(\widehat Y_\text{new}-E[\widehat Y_\text{new}])^2]+E[(E[\widehat Y_\text{new}]-\mu(\boldsymbol x_\text{new}))^2$
 
-    $+2E[(\widehat Y_\text{new}-E[\widehat Y_\text{new}])(E[\widehat Y_\text{new}]-f(\boldsymbol x_\text{new}))]$
+    $+2E[(\widehat Y_\text{new}-E[\widehat Y_\text{new}])(E[\widehat Y_\text{new}]-\mu(\boldsymbol x_\text{new}))]$
 
-    $=\text{Var}[\widehat Y_\text{new}]+(E[\widehat Y_\text{new}]-f(\boldsymbol x_\text{new}))^2$ $=\text{Variance}+\text{bias}^2$!!!
+    $=\text{Var}[\widehat Y_\text{new}]+(E[\widehat Y_\text{new}]-\mu(\boldsymbol x_\text{new}))^2$ $=\text{Variance}+\text{bias}^2$!!!
+
+-   Thus $\text{MSE}(\boldsymbol x_\text{new}) = \text{Variance}+\text{bias}^2 + \text{irreducible error}$
 
     ![](images/clipboard-254487246.png){width="376"}
 
@@ -85,8 +89,6 @@ output: html_document
     -   Every model involves some degree of simplification.
 
     -   Bias is also known as '**modelling error**'.
-
-    -   The smaller the neighborhood, the smaller the bias.
 
     ------------------------------------------------------------------------
 
@@ -144,11 +146,11 @@ $$=E_{p(\boldsymbol x)}[E[(\widehat Y(\boldsymbol x)-Y(\boldsymbol x))^2]]$$
 
 -   $Y(\boldsymbol x)$ assumed independent of $\widehat Y(\boldsymbol x)$
 
--   But $\widehat Y(\boldsymbol x)$ is based on $\{(\boldsymbol x_i,y_i),i=1,...,n\}$
+-   But our estimator $\widehat Y(\boldsymbol x)$ is based on $\{(\boldsymbol x_i,y_i),i=1,...,n\}$
 
 -   Thus $\widehat y_i$ depends of $y_i$
 
--   Using "**training"** data to estimate **MSE** leads to underestimation of error (aka optimism)
+-   Using "**training"** data to estimate **MSE** [**leads to underestimation of error**]{.underline} (aka optimism)
 
 ```{r}
 #let us recall yesterday and simulate some data for us to learn what I talked about above
@@ -158,23 +160,27 @@ dataset$y.tomorrow <- rnorm(100,dataset$x,5)
 #same conditional distribution for both days
 boxplot(dataset$y.yesterday,dataset$y.tomorrow)
 
-#by attaching a dataset, it is searched by R when evaluating a variable, so objects in the database can be accessed by simply giving their names.
-attach(dataset)
+#fit a polinomial or a linear model to a dataset
+# p == 0 corresponds to Y = b0 + e
+# p == 1 corresponds to Y = b0 + b1*x + e
+# p == 2 corresponds to Y = b0 + b1*x + b2*x^2
+#...
+# p == 5 corresponds to Y = b0 + b1*x + b2*x^2 + b3*x^3 + b4*x^4 + b5*x^5
+polinomio <- function(p, dataset) if(p==0) lm(y.yesterday~1,dataset) else lm(y.yesterday~poly(x,p),dataset)
 
-polinomio <- function(p) if(p==0) lm(y.yesterday~1) else lm(y.yesterday~poly(x,p))
 #apply linear model and then polunomials of up to order 23
-polinomi <- apply(cbind(0:23), 1, polinomio)
+polinomi <- lapply(0:23, FUN = polinomio, dataset = dataset)
 
+#print(polinomi)
 
 #make predictions for tomorrow for all the polynomial models
-y.hat <- lapply(polinomi, predict)
+y.hat <- lapply(polinomi, predict, data = dataset)
 
+#define the mse
+mse.function <- function(y,y.hat) mean((y-y.hat)^2)
 
-mse.train <- function(y.hat) mean((y.yesterday-y.hat)^2)
-mse.yesterday <- as.numeric(lapply(y.hat, mse.train))
-
-mse.test <- function(y.hat) mean((y.tomorrow-y.hat)^2)
-mse.tomorrow <- as.numeric(lapply(y.hat, mse.test))
+mse.yesterday <- sapply(y.hat, mse.function, y = dataset$y.yesterday)
+mse.tomorrow <- sapply(y.hat, mse.function, y = dataset$y.tomorrow)
 
 boxplot(cbind(mse.yesterday,mse.tomorrow))
 
@@ -183,8 +189,8 @@ boxplot(cbind(mse.yesterday,mse.tomorrow))
 Let us plot the results for all polynomials in base R
 
 ```{r}
-plot(0:23, sqrt(mse.yesterday), type="b", xlab="p", ylab="RMSE", ylim=sqrt(c(min(c(mse.yesterday,mse.tomorrow)),max(c(mse.yesterday,mse.tomorrow)))))
-lines(0:23,sqrt(mse.tomorrow),type = "b", col = 2)
+plot(0:23, mse.yesterday, type="b", xlab="p", ylab="MSE", ylim=c(min(c(mse.yesterday,mse.tomorrow)),max(c(mse.yesterday,mse.tomorrow))))
+lines(0:23,mse.tomorrow,type = "b", col = 2)
 legend("topright", legend = c("Yesterday", "Tomorrow"), col = c(1, 2), pch = 1:1, lty = 1:1)
 ```
 
@@ -192,7 +198,7 @@ legend("topright", legend = c("Yesterday", "Tomorrow"), col = c(1, 2), pch = 1:1
 
 1.  **Main Problem:**
 
-    -   Need a separate data set for evaluation.
+    -   Need a separate data set for evaluation or other forms to deal with the *optimism* problem.
 
 2.  **Possible Approaches:**
 
@@ -202,7 +208,7 @@ legend("topright", legend = c("Yesterday", "Tomorrow"), col = c(1, 2), pch = 1:1
 
     -   Bootstrapping
 
-    -   Correcting for underestimation/optimism.
+    -   Correcting for underestimation/optimism mathematically.
 
         -   Criteria based on information.
 
@@ -220,11 +226,7 @@ legend("topright", legend = c("Yesterday", "Tomorrow"), col = c(1, 2), pch = 1:1
 
             -   Used to evaluate the model
 
-2.  **Prototype Example:**
-
-    -   Refer to the prototype example provided earlier.
-
-3.  **Strengths:**
+2.  **Strengths:**
 
     -   Independent dataset for evaluation
 
@@ -232,15 +234,13 @@ legend("topright", legend = c("Yesterday", "Tomorrow"), col = c(1, 2), pch = 1:1
 
     -   Easy to understand
 
-4.  **Weaknesses:**
+3.  **Weaknesses:**
 
     -   Reduces the dataset used for training the model
 
         -   Not a problem if huge amounts of data are available
 
-    -   If the same test set is used to choose between models, the final error measure will be too optimistic
-
-        -   For $X_1,...,X_p$ all have $E[X_i]=\mu$, $\hat\mu=\min\{X_1,...,X_p\}$ will have $E[\hat\mu]<\mu$.
+    -   If the same test ***set is used to choose between*** models, the final error measure will be too optimistic (i.e. **overfiting to test data**)!
 
 **Including Validation Set**
 
@@ -262,11 +262,13 @@ legend("topright", legend = c("Yesterday", "Tomorrow"), col = c(1, 2), pch = 1:1
 
         -   **Weakness:**
 
-            -   Requires large data-sets
+            -   **Requires large data-sets!**
 
 ```{r}
 
 library(ISLR)
+
+head(Default)
 
 formel <- balance ~ 1 + as.factor(student) + as.factor(default) + poly(income,8)
 fit.lm <- lm(formel,data=Default)
@@ -276,13 +278,16 @@ summary(fit.lm)
 #In-sample prediction error
 y.pred <- predict(fit.lm,Default)
 RMSE.insamp <- sqrt(mean((Default$balance-y.pred)^2))
+print(RMSE.insamp)
 
+#out of sample prediction error
 set.seed(2)
 n <- nrow(Default)
 ind <- sample(1:n,n/2,replace=FALSE)
 fit <- lm(formel,data=Default[ind,])
 pred <- predict(fit,Default[-ind,])
-sqrt(mean((Default$balance[-ind]-pred)^2))
+RMSE.test <- sqrt(mean((Default$balance[-ind]-pred)^2))
+cat(RMSE.insamp,RMSE.test)
 
 #Splitting into train and test, repeating several times
 n <- nrow(Default)
@@ -328,7 +333,7 @@ legend("topright", legend = c("Train-Test RMSE", "In-Sample RMSE"), col = c(1, 2
 
     -   Estimate Mean Squared Error (MSE) by:
 
-        $\widehat{\text{MSE}}_{LOO} =\sum_{i=1}^n(y_i-\hat y_{-i})^2$
+        $\widehat{\text{MSE}}_{LOO} =1/n\sum_{i=1}^n(y_i-\hat y_{-i})^2$
 
 4.  **Strengths:**
 
@@ -344,6 +349,7 @@ legend("topright", legend = c("Train-Test RMSE", "In-Sample RMSE"), col = c(1, 2
 
 ```{r}
 n <- nrow(Default)
+print(n)
 y.cv <- rep(NA,n)
 for(i in 1:n)
 {
@@ -369,27 +375,27 @@ legend("topright", legend = c("Train-Test RMSE", "In-Sample RMSE", "LOO-CV RMSE"
 
 1.  **Data Split:**
 
-    -   Divide the data into $K$ groups.
+    -   Divide the data into $K$ equal groups.
 
 2.  **Observation Prediction:**
 
-    -   For an observation $y_i$ that belongs to group $k_i$, construct $\hat y_i^K$ by using data from all groups **except group** $k_i$}
+    -   For an observation $y_i$ that belongs to group $k_i$, construct $\hat y_i^K$ by using data from all groups **except group** $k_i$
 
 3.  **Estimate Mean Squared Error (MSE):**
 
     -   Use the formula:
 
-        $\widehat{\text{MSE}}_{CV-K}=\sum_{i=1}^n(y_i-\hat y_{-i}^K)^2$
+        $\widehat{\text{MSE}}_{CV-K}=1/n\sum_{i=1}^n(y_i-\hat y_{-i}^K)^2$
 
 4.  **Strengths (Compared to LOO-CV):**
 
-    -   Only need to train \$K\$ models, less computationally intensive.
+    -   Only need to train $K$ models, less computationally intensive.
 
     -   All observations are still used as tests.
 
 5.  **Weaknesses:**
 
-    -   Using **more** different models for each prediction.
+    -   Using **more** differing models for each prediction.
 
 ```{r}
 
@@ -397,19 +403,16 @@ legend("topright", legend = c("Train-Test RMSE", "In-Sample RMSE", "LOO-CV RMSE"
 K <- 5
 nk <- n/K
 RMSE.Kcv <- rep(0,K)
-for(b in 1:K)
+
+ind <- 1:n
+for(k in 1:K)
 {
-  pred.K <- rep(NA,n)
-  ind <- sample(1:n,n,replace=FALSE)   #Permutation of data
-  for(k in 1:K)
-  {
-    ind2 <- ind[(k-1)*nk + 1:nk]
-    f <- lm(formel,data=Default[-ind2,])
-    pred.K <- predict(f,Default[ind2,])
-    RMSE.Kcv[b] <- RMSE.Kcv[b] + sum((Default$balance[ind2]-pred.K)^2)/n
-  }
+  ind.keep <- ind[(k-1)*nk + 1:nk]
+  f <- lm(formel,data=Default[-ind.keep,])
+  pred.K <- predict(f,Default[ind.keep,])
+  RMSE.Kcv[k] <- sqrt(mean((Default$balance[ind.keep]-pred.K)^2))
 }
-RMSE.Kcv <- sqrt(RMSE.Kcv)
+
 
 cat("In sample was ", RMSE.insamp, ", LOO-CV was ",RMSE.loo, "and K-fold-CV is ",mean(RMSE.Kcv))
 ```
@@ -424,7 +427,7 @@ abline(h = mean(RMSE.Kcv), col = 4, lty = 2, lwd = 2)
 legend("topright", legend = c("Train-Test RMSE", "In-Sample RMSE", "LOO-CV RMSE", "K-fold-CV RMSE"), col = c(1, 2, 3, 4), lty = c(1,2,2,2))
 ```
 
-# **Bootstrap evaluation of out-of-Sample MSE**
+# **Bootstrap evaluation of out-of-Sample (R)MSE**
 
 1.  **Bootstrap Method:**
 
@@ -440,7 +443,7 @@ legend("topright", legend = c("Train-Test RMSE", "In-Sample RMSE", "LOO-CV RMSE"
 
     -   Use the formula:
 
-        $\widehat{\text{MSE}}_{Bootstrap} =\sum_{i=1}^{n^*}(y_i-\hat y_{-i}^K)^2$
+        $\widehat{\text{MSE}}_{Bootstrap} =1/n\sum_{i=1}^{n^*}(y_i-\hat y_{-i}^K)^2$
 
     -   where $B$ is the number of bootstrap samples.
 
@@ -456,8 +459,6 @@ legend("topright", legend = c("Train-Test RMSE", "In-Sample RMSE", "LOO-CV RMSE"
 
     -   Computationally intensive for large **datasets**.
 
-    -   May not be suitable for highly dependent data (spatio-temporal data).
-
 ```{r}
 # Bootstrap Validation with Out-of-Bag Predictions
 B <- 1000  # Number of bootstrap samples
@@ -466,15 +467,14 @@ RMSE.bootstrap <- rep(0, B)
 set.seed(123)  # Set seed for reproducibility
 
 for (b in 1:B) {
-  pred.bootstrap <- rep(NA, n)
+ 
   ind <- sample(1:n, n, replace = TRUE)  # Bootstrap sampling with replacement
-
   ind_out_of_bag <- setdiff(1:n, ind)  # Indices not in the current bootstrap training set
 
   f <- lm(formel, data = Default[ind,])  # Fit model using bootstrap sample
-  pred.bootstrap[ind_out_of_bag] <- predict(f, Default[ind_out_of_bag,])  # Make predictions for out-of-bag indices
+  pred.bootstrap <- predict(f, Default[ind_out_of_bag,])  # Make predictions for out-of-bag indices
 
-  RMSE.bootstrap[b] <- sqrt(sum((Default$balance[ind_out_of_bag] - pred.bootstrap[ind_out_of_bag])^2) / length(ind_out_of_bag))
+  RMSE.bootstrap[b] <- sqrt(mean((Default$balance[ind_out_of_bag] - pred.bootstrap)^2))
 }
 
 boxplot(RMSE.bootstrap)
@@ -494,17 +494,11 @@ abline(h = mean(RMSE.Kcv), col = 4, lty = 2, lwd = 2)
 
 not too large difference between in sample errors and our more advanced methods here, but even more flexible methods like higher order polynomials or neural networks would typically suffer from the "red" line being far below other lines in our box-plot.
 
-![](images/clipboard-846243299.png)
-
 # **Criteria-Based Methods**
-
--   **Challenges:**
-
-    -   Sparse data, constrained computational power, or difficult to divide the data-set.
 
 -   **Within-Sample Estimate:**
 
-    -   $MSE = \sum_{i=1}^n(y_i - \hat y_i)^2$ is underestimated.
+    -   $MSE = 1/n\sum_{i=1}^n(y_i - \hat y_i)^2$ is underestimated.
 
 -   **Regression with Gaussian Noise:**
 
@@ -546,17 +540,17 @@ not too large difference between in sample errors and our more advanced methods 
 
 **AIC and BIC:**
 
--   Can also be used \\alert{outside linear models}.
+-   Can also be used **outside** linear models.
 
 **Information Criteria - Pros and Cons**
 
 1.  **Non-Nested Models:**
 
-    -   Can be used for non-nested models (in contrast to likelihood ratio tests).
+    -   Can be used for non-nested models only (in contrast to likelihood ratio tests).
 
 2.  **Direct Application to Data:**
 
-    -   Work directly on all data at hand.
+    -   Work directly on all data at hand (**no need** to split the data in different sets!).
 
         -   Can also be used for **dependent** data.
 
@@ -572,7 +566,7 @@ not too large difference between in sample errors and our more advanced methods 
 
 1.  **Model Set:**
 
-    -   Assume a \\alert{set} of models obtained by selection from a set of explanatory variables.
+    -   Assume a set of models obtained by selection from a set of explanatory variables.
 
         -   $S = {1, x_1, x_2, ..., x_q}$.
 
@@ -588,7 +582,7 @@ not too large difference between in sample errors and our more advanced methods 
 
     -   Start with $S_0 = {1}$.
 
-    -   Find $x_j$ such that $S_1 = {1, x_j}$ is the best among all ${1, x_k}$ for $k = 1, ..., q$.
+    -   Find $x_j$ such that $S_1 = {1, x_j}$ is the best (in terms of likelihood) among all ${1, x_k}$ for $k = 1, ..., q$.
 
     -   Find $x_k$ such that $S_1 = {1, x_j, x_k}$ is the best among all ${1, x_j, x_l}$ for $l \neq j$.
 
@@ -598,11 +592,7 @@ not too large difference between in sample errors and our more advanced methods 
 
 5.  **Alternative:**
 
-    -   Backwards selection.
-
-6.  **Challenges:**
-
-    -   Main problem: Computationally costly.
+    -   Backwards selection (start from all and move backwards).
 
 Let us take a look at an example in R
 
@@ -613,10 +603,9 @@ library(ISLR)
 
 data(Hitters)
 head(Hitters)
-dim(Hitters)
-??Hitters
+#??Hitters to see more
 
-
+#remove the missing data
 sum(is.na(Hitters$Salary))
 Hitters <- na.omit(Hitters)
 dim(Hitters)
@@ -633,11 +622,7 @@ nvmax <- 20
 regfit.fwd <- regsubsets(Salary~.,data=Hitters,nvmax=nvmax,method="forward") # to change to backward, use method = "backward"
 
 summary.regfit.fwd = summary(regfit.fwd)
-show(summary.regfit.fwd)
 
-#r2 and adjr2
-matplot(cbind(summary.regfit.fwd$rsq,summary.regfit.fwd$adjr2),type="l", ylab="R^2 and adj-R^2")
-#bic
 plot(summary.regfit.fwd$bic,type="l")
 
 #aic
@@ -667,10 +652,6 @@ nvmax <- 150
 regfit.fwd <- regsubsets(Salary~.^2-NewLeague^2,data=Hitters,nvmax=nvmax,method="forward")
 summary.regfit.fwd <- summary(regfit.fwd)
 
-
-
-#r2 adjr2
-matplot(cbind(summary.regfit.fwd$rsq,summary.regfit.fwd$adjr2),type="l",ylab="R^2 and adj-R^2")
 
 #bic
 plot(summary.regfit.fwd$bic,type="l")
@@ -707,7 +688,7 @@ legend("topright",c("AIC","BIC"),lty=1,col=1:2)
 
 1.  **Consideration of All Subsets:**
 
-    -   Evaluate all $2^p$ possible subsets of explanatory variables.
+    -   Evaluate all $2^q$ possible subsets of explanatory variables.
 
 2.  **Exhaustive Search:**
 
@@ -715,7 +696,7 @@ legend("topright",c("AIC","BIC"),lty=1,col=1:2)
 
 3.  **Combinatorial Challenge:**
 
-    -   Evaluating all subsets becomes impractical for large $p$.
+    -   Evaluating all subsets becomes impractical for large $q$.
 
 4.  **Advantages:**
 
@@ -728,10 +709,6 @@ legend("topright",c("AIC","BIC"),lty=1,col=1:2)
 ```{r}
 regfit.full <- regsubsets(Salary~.,data=Hitters,nvmax=20, method="exhaustive")
 reg.summary <- summary(regfit.full)
-matplot(cbind(1:19,1:19),
-        cbind(reg.summary$rsq,reg.summary$adjr2),
-        type="l",lty=1,col=1:2,
-        xlab="d",ylab="R^2/R^2 adjusted")
 
 
 plot(1:19, reg.summary$bic,
@@ -744,6 +721,8 @@ print(which.min(reg.summary$bic))
 #regfit.full.int <- regsubsets(Salary~.^2-NewLeague^2,data=Hitters,nvmax=nvmax,method="exhaustive",really.big=T)
 
 ```
+
+**Important!** we can no longer rely on p-values for the effects in the best selected model!
 
 # Bayesian **Model Selection**
 
@@ -791,6 +770,8 @@ now feasible with interactions
 regfit.full.bayes.interact <- bas.lm(Salary~.^2-NewLeague^2,data=Hitters)
 coef(regfit.full.bayes.interact)
 ```
+
+Read more on BAS package here <https://link.springer.com/article/10.3758/s13428-021-01552-2>
 
 ## **Exercises - replace loops with sapply/lapply/mclapply** 
 
