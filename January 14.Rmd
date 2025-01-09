@@ -2,7 +2,7 @@
 title: "Creating functions. The matrix data structure. Data frame"
 author: "Lars Snipen, Jon Olav Vik, Aliaksandr Hubin"
 output: html_document
-date: "2024-01-02"
+date: "2024-14-01"
 ---
 
 # [*Creating functions.*]{.underline}
@@ -205,7 +205,6 @@ Most functions take one or several arguments, the input we give them. They do so
 v <- c(1,4,2,5,6,3)  # numeric vector
 y <- mean(v)         # use v as argument, store output in y
 print(y)
-mean()
 ```
 
 Looking at `?mean` we see that its usage is also described as

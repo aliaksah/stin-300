@@ -2,7 +2,7 @@
 title: "The list data structure. Loops. The if...else statement."
 author: "Lars Snipen, Jon Olav Vik, Aliaksandr Hubin"
 output: html_document
-date: "2024-01-02"
+date: "2024-13-01"
 ---
 
 # [*The list data structure.*]{.underline}

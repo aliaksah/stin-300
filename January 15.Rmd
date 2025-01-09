@@ -2,7 +2,7 @@
 title: "Applying a function to all items of a list. mclapply, sapply, lapply"
 author: "Lars Snipen, Jon Olav Vik, Aliaksandr Hubin"
 output: html_document
-date: "2024-01-03"
+date: "2024-15-01"
 ---
 
 # [*Applying a function to all items of a list:*]{.underline} *apply(), lapply(), mclapply(), sapply()*
@@ -37,12 +37,12 @@ But still, sometimes we need a loop to
 
 The `apply` family of R functions simplify such operations and avoid explicit looping. They differ slightly in name and how they work, but are all ways of doing some kind of looping.
 
-| Function | Description                                                                                                                                                   |
-|----------|---------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| apply    | Apply function to rows or columns of a matrix (generalizes to multidimensional arrays)                                                                        |
-| lapply   | List apply: apply function to each element of a list, returning a list of results                                                                             |
-| mclapply | List apply: apply function to each element of a list in **parallel**, returning a list of results.                                                            |
-| sapply   | Simplifying apply: lapply(), but return **vector** if all return values are scalars, **data frame** if all return values are vectors of the same length, etc. |
+| Function | Description |
+|------------|------------------------------------------------------------|
+| apply | Apply function to rows or columns of a matrix (generalizes to multidimensional arrays) |
+| lapply | List apply: apply function to each element of a list, returning a list of results |
+| mclapply | List apply: apply function to each element of a list in **parallel**, returning a list of results. |
+| sapply | Simplifying apply: lapply(), but return **vector** if all return values are scalars, **data frame** if all return values are vectors of the same length, etc. |
 
 ## **The `apply()` function**
 
@@ -100,9 +100,9 @@ print(lst2)
 
 mclapply(lst, sort, mc.cores = 10)
 
-lapply(1:100000000,sqrt)
+lapply(1:10000,sqrt)
 
-mclapply(1:100000000,sqrt,mc.cores = 20)
+mclapply(1:10000,sqrt,mc.cores = 20)
 
 ```
 
